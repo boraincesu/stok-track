@@ -1,0 +1,41 @@
+export type OrderStatus = "Completed" | "Pending" | "Canceled";
+
+export type Order = {
+  id: string;
+  customer: string;
+  amount: number;
+  status: OrderStatus;
+};
+
+export type ProductStatus = "In Stock" | "Low Stock" | "Out of Stock";
+
+export type Product = {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  status: ProductStatus;
+};
+
+export type SalesPoint = {
+  name: string;
+  sales: number;
+};
+
+export type RevenuePoint = {
+  name: string;
+  revenue: number;
+};
+
+export type CategorySlice = {
+  name: string;
+  value: number;
+};
+
+export type StatTile = {
+  title: string;
+  value: string;
+  change: string;
+  trendColor: string;
+};
