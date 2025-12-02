@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Stock Tracking Starter
 
-## Getting Started
+Next.js 14 (App Router) starter that wires together Supabase Postgres, Prisma, NextAuth, and Tailwind UI to deliver:
 
-First, run the development server:
+- Credential-based signup/login flows with client-side validation and hashed passwords
+- Protected dashboard route that greets the authenticated user
+- API endpoints for account creation plus the built-in NextAuth handler
+- Prisma schema for `User`, `Account`, `Session`, and `VerificationToken` models matching the NextAuth adapter expectations
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Use this as the foundation for a stock management platform by layering product, warehouse, and transaction features on top of the authenticated scaffold.
+
+## Stack
+
+- Next.js 16 / React 19 with the App Router
+- TypeScript + Zod validation
+- NextAuth (v4) credentials provider + Prisma adapter
+- Supabase-hosted PostgreSQL
+- Prisma ORM
+- Tailwind v4 (via `@tailwindcss/postcss`)
+
+## Environment Variables
+
+Copy `.env` from the template and set the following secrets:
+
+```env
+DATABASE_URL="postgresql://<user>:<password>@<supabase-host>:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://<user>:<password>@<supabase-host>:5432/postgres"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="replace-with-strong-secret"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `DATABASE_URL` points to Supabase connection pooling (pgBouncer) for runtime usage.
+- `DIRECT_URL` points to the direct Postgres connection used by Prisma Migrate.
+- `NEXTAUTH_SECRET` must be a long random string (e.g., `openssl rand -hex 32`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database & Prisma
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Adjust the `prisma/schema.prisma` models if you need extra profile fields.
+2. Run migrations to create the schema in Supabase:
 
-## Learn More
+   ```bash
+   npx prisma migrate dev --name init
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. Whenever you change the schema, regenerate the client:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   npx prisma generate
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Development
 
-## Deploy on Vercel
+```bash
+npm install           # install dependencies
+npm run lint          # type-aware linting
+npm run dev           # start Next.js (http://localhost:3000)
+npm run build         # production build (ensures auth + Prisma wiring)
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The landing page automatically redirects authenticated users to `/dashboard`. Anonymous users see calls-to-action for `/signup` and `/login`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Auth Flow
+
+1. `/signup` performs field validation, hashes the password with `bcryptjs`, stores the record via Prisma, then signs the user in.
+2. `/login` uses `next-auth/react` `signIn()` with credentials.
+3. Protected pages (`/dashboard`) call `getServerSession(authOptions)` and redirect to `/login` when no session exists.
+4. API routes are forced onto the Node.js runtime to ensure compatibility with `bcryptjs` and Prisma.
+
+## Extending the Dashboard
+
+- Add Prisma models for `Product`, `Warehouse`, `InventoryLevel`, etc.
+- Build CRUD routes under `app/api` and matching server actions.
+- Surface live KPIs in `app/dashboard/page.tsx` by querying Prisma with the authenticated user ID.
+
+This base already solves identity, persistence, and routing so you can focus on stock tracking logic.
