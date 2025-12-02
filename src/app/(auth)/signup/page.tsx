@@ -84,14 +84,19 @@ export default function SignupPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
             Secure onboarding
           </p>
-          <h1 className="text-3xl font-semibold text-slate-900">Create an account</h1>
+          <h1 className="text-3xl font-semibold text-slate-900">
+            Create an account
+          </h1>
           <p className="text-sm text-slate-600">
             Start tracking inventory by creating your free account.
           </p>
         </div>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700" htmlFor="name">
+            <label
+              className="text-sm font-medium text-slate-700"
+              htmlFor="name"
+            >
               Name
             </label>
             <input
@@ -107,7 +112,10 @@ export default function SignupPage() {
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700" htmlFor="email">
+            <label
+              className="text-sm font-medium text-slate-700"
+              htmlFor="email"
+            >
               Email
             </label>
             <input
@@ -122,7 +130,10 @@ export default function SignupPage() {
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700" htmlFor="password">
+            <label
+              className="text-sm font-medium text-slate-700"
+              htmlFor="password"
+            >
               Password
             </label>
             <input
@@ -138,7 +149,10 @@ export default function SignupPage() {
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700" htmlFor="confirmPassword">
+            <label
+              className="text-sm font-medium text-slate-700"
+              htmlFor="confirmPassword"
+            >
               Confirm Password
             </label>
             <input
@@ -171,7 +185,10 @@ export default function SignupPage() {
 
         <p className="text-center text-sm text-slate-600">
           Already have an account?{" "}
-          <Link className="font-semibold text-blue-700 hover:text-blue-600" href="/login">
+          <Link
+            className="font-semibold text-blue-700 hover:text-blue-600"
+            href="/login"
+          >
             Log in
           </Link>
         </p>

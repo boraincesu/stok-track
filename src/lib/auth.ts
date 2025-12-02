@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
 
         const isValidPassword = await compare(
           parsed.data.password,
-          user.hashedPassword,
+          user.hashedPassword
         );
 
         if (!isValidPassword) {
@@ -70,7 +70,8 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = (token.id as string) ?? session.user.id;
-        session.user.email = (token.email as string | null) ?? session.user.email;
+        session.user.email =
+          (token.email as string | null) ?? session.user.email;
         session.user.name = (token.name as string | null) ?? session.user.name;
       }
       return session;

@@ -49,7 +49,9 @@ function LoginForm() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
             Secure access
           </p>
-          <h1 className="text-3xl font-semibold text-slate-900">Welcome back</h1>
+          <h1 className="text-3xl font-semibold text-slate-900">
+            Welcome back
+          </h1>
           <p className="text-sm text-slate-600">
             Sign in to continue to your dashboard.
           </p>
@@ -57,7 +59,10 @@ function LoginForm() {
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700" htmlFor="email">
+            <label
+              className="text-sm font-medium text-slate-700"
+              htmlFor="email"
+            >
               Email
             </label>
             <input
@@ -72,7 +77,10 @@ function LoginForm() {
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700" htmlFor="password">
+            <label
+              className="text-sm font-medium text-slate-700"
+              htmlFor="password"
+            >
               Password
             </label>
             <input
@@ -105,7 +113,10 @@ function LoginForm() {
 
         <p className="text-center text-sm text-slate-600">
           Need an account?{" "}
-          <Link className="font-semibold text-blue-700 hover:text-blue-600" href="/signup">
+          <Link
+            className="font-semibold text-blue-700 hover:text-blue-600"
+            href="/signup"
+          >
             Sign up
           </Link>
         </p>
@@ -117,7 +128,9 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense
-      fallback={<div className="min-h-screen bg-[radial-gradient(circle_at_top,_#e8f0ff,_#f7f9fc)]" />}
+      fallback={
+        <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#e8f0ff,_#f7f9fc)]" />
+      }
     >
       <LoginForm />
     </Suspense>
