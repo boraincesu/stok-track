@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 
 import { Header } from "@/components/dashboard/Header";
 import { NewProductModal } from "@/components/dashboard/NewProductModal";
@@ -11,14 +12,14 @@ import { ReportsPage } from "@/components/dashboard/ReportsPage";
 import { SalesChart } from "@/components/dashboard/SalesChart";
 import { SettingsPage } from "@/components/dashboard/SettingsPage";
 import { Sidebar, type SidebarTab } from "@/components/dashboard/Sidebar";
-import { StatsCard } from "@/components/dashboard/StatsCard";
 import {
-  ORDERS_DATA,
-  PRODUCTS_DATA,
-  RECENT_ORDERS,
-  STATS,
-} from "@/data/dashboard";
-import type { Product } from "@/types/dashboard";
+  DashboardSkeleton,
+  ProductsTableSkeleton,
+  OrdersTableSkeleton,
+  ReportsPageSkeleton,
+} from "@/components/dashboard/Skeleton";
+import { StatsCard } from "@/components/dashboard/StatsCard";
+import type { Order, Product } from "@/types/dashboard";
 
 type TabId = SidebarTab;
 
@@ -31,66 +32,235 @@ const TAB_ITEMS: { id: TabId; label: string }[] = [
 ];
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("dashboard");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab") as TabId | null;
+
+  const [activeTab, setActiveTab] = useState<TabId>(
+    tabParam && TAB_ITEMS.some((t) => t.id === tabParam)
+      ? tabParam
+      : "dashboard"
+  );
   const [searchTerm, setSearchTerm] = useState("");
-  const [products, setProducts] = useState(PRODUCTS_DATA);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Tab değiştiğinde URL'i güncelle
+  const handleTabChange = useCallback(
+    (tab: TabId) => {
+      setActiveTab(tab);
+      router.push(`/dashboard?tab=${tab}`, { scroll: false });
+    },
+    [router]
+  );
+
+  // Verileri API'den çek
+  const fetchData = useCallback(async () => {
+    try {
+      const [productsRes, ordersRes] = await Promise.all([
+        fetch("/api/products"),
+        fetch("/api/orders"),
+      ]);
+
+      if (productsRes.ok) {
+        const productsData = await productsRes.json();
+        setProducts(productsData);
+      }
+
+      if (ordersRes.ok) {
+        const ordersData = await ordersRes.json();
+        setOrders(ordersData);
+      }
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleAddProduct = () => {
-    setActiveTab("products");
+    handleTabChange("products");
     setIsModalOpen(true);
   };
 
-  const handleCreateProduct = (payload: {
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm("Bu ürünü silmek istediğinizden emin misiniz?")) return;
+
+    try {
+      const response = await fetch(`/api/products/${productId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setProducts((prev) => prev.filter((p) => p.id !== productId));
+      } else {
+        alert("Ürün silinirken bir hata oluştu");
+      }
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      alert("Sunucuya bağlanılamadı");
+    }
+  };
+
+  const handleUpdateProduct = async (
+    productId: string,
+    updates: Partial<Product>
+  ) => {
+    try {
+      const response = await fetch(`/api/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+
+      if (response.ok) {
+        const updatedProduct = await response.json();
+        setProducts((prev) =>
+          prev.map((p) => (p.id === productId ? updatedProduct : p))
+        );
+      } else {
+        alert("Ürün güncellenirken bir hata oluştu");
+      }
+    } catch (error) {
+      console.error("Failed to update product:", error);
+      alert("Sunucuya bağlanılamadı");
+    }
+  };
+
+  const handleCreateProduct = async (payload: {
     name: string;
     category: string;
     price: number;
     stock: number;
   }) => {
-    const deriveStatus = (stock: number): Product["status"] => {
-      if (stock <= 0) return "Out of Stock";
-      if (stock < 15) return "Low Stock";
-      return "In Stock";
-    };
+    try {
+      const response = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    setProducts((previous) => [
-      {
-        id: `PRD-${Date.now()}`,
-        name: payload.name,
-        category: payload.category,
-        price: payload.price,
-        stock: payload.stock,
-        status: deriveStatus(payload.stock),
-      },
-      ...previous,
-    ]);
+      if (response.ok) {
+        const newProduct = await response.json();
+        setProducts((previous) => [newProduct, ...previous]);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Failed to create product:", errorData);
+        alert("Ürün eklenirken bir hata oluştu");
+      }
+    } catch (error) {
+      console.error("Failed to create product:", error);
+      alert("Sunucuya bağlanılamadı. Lütfen tekrar deneyin.");
+    }
   };
+
+  // Stats hesapla
+  const stats = useMemo(() => {
+    const totalRevenue = orders
+      .filter((o) => o.status === "Completed")
+      .reduce((sum, o) => sum + o.amount, 0);
+
+    const pendingOrders = orders.filter((o) => o.status === "Pending").length;
+    const lowStockItems = products.filter(
+      (p) => p.status === "Low Stock" || p.status === "Out of Stock"
+    ).length;
+    const completedOrders = orders.filter(
+      (o) => o.status === "Completed"
+    ).length;
+    const fulfillmentRate =
+      orders.length > 0
+        ? ((completedOrders / orders.length) * 100).toFixed(1)
+        : "0";
+
+    return [
+      {
+        title: "Total Revenue",
+        value: `$${totalRevenue.toLocaleString()}`,
+        change: "From completed orders",
+        trendColor: "text-emerald-600",
+      },
+      {
+        title: "Pending Orders",
+        value: String(pendingOrders),
+        change: `${orders.length} total orders`,
+        trendColor: "text-blue-600",
+      },
+      {
+        title: "Low Stock Items",
+        value: String(lowStockItems),
+        change: "Needs attention",
+        trendColor: lowStockItems > 0 ? "text-amber-600" : "text-emerald-600",
+      },
+      {
+        title: "Fulfillment Rate",
+        value: `${fulfillmentRate}%`,
+        change: `${completedOrders} completed`,
+        trendColor: "text-emerald-600",
+      },
+    ];
+  }, [products, orders]);
+
+  const recentOrders = useMemo(() => orders.slice(0, 5), [orders]);
 
   const dashboardContent = useMemo(
     () => (
       <section className="space-y-8">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {STATS.map((stat) => (
-            <StatsCard key={stat.title} {...stat} />
-          ))}
-        </div>
-        <div className="grid gap-6 lg:grid-cols-3">
-          <SalesChart />
-          <RecentOrders orders={RECENT_ORDERS} />
-        </div>
+        {isLoading ? (
+          <DashboardSkeleton />
+        ) : (
+          <>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {stats.map((stat) => (
+                <StatsCard key={stat.title} {...stat} />
+              ))}
+            </div>
+            <div className="grid gap-6 lg:grid-cols-3">
+              <SalesChart />
+              <RecentOrders orders={recentOrders} />
+            </div>
+          </>
+        )}
       </section>
     ),
-    []
+    [isLoading, stats, recentOrders]
   );
 
   const renderActiveContent = () => {
+    if (isLoading) {
+      switch (activeTab) {
+        case "products":
+          return <ProductsTableSkeleton />;
+        case "orders":
+          return <OrdersTableSkeleton />;
+        case "reports":
+          return <ReportsPageSkeleton />;
+        case "settings":
+          return <SettingsPage />;
+        default:
+          return dashboardContent;
+      }
+    }
+
     switch (activeTab) {
       case "products":
-        return <ProductsPage products={products} searchTerm={searchTerm} />;
+        return (
+          <ProductsPage
+            products={products}
+            searchTerm={searchTerm}
+            onDelete={handleDeleteProduct}
+            onUpdate={handleUpdateProduct}
+          />
+        );
       case "orders":
-        return <OrdersPage orders={ORDERS_DATA} searchTerm={searchTerm} />;
+        return <OrdersPage orders={orders} searchTerm={searchTerm} />;
       case "reports":
-        return <ReportsPage />;
+        return <ReportsPage orders={orders} products={products} />;
       case "settings":
         return <SettingsPage />;
       default:
@@ -100,7 +270,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex min-h-screen bg-background-light text-text-light-primary">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} />
       <div className="flex flex-1 flex-col">
         <nav className="sticky top-0 z-10 border-b border-border-light bg-card-light px-4 py-3 md:hidden">
           <div className="flex gap-2 overflow-x-auto">
@@ -110,7 +280,7 @@ export default function DashboardPage() {
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleTabChange(tab.id)}
                   className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition ${
                     isActive
                       ? "bg-primary text-white"

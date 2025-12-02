@@ -66,3 +66,86 @@ model PasswordResetToken {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+// Dashboard Models
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Product {
+  id         String        @id @default(cuid())
+  name       String
+  price      Float
+  stock      Int           @default(0)
+  status     ProductStatus @default(IN_STOCK)
+  categoryId String
+  category   Category      @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([categoryId])
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  orderNo    String      @unique
+  customerId String
+  customer   Customer    @relation(fields: [customerId], references: [id])
+  amount     Float
+  status     OrderStatus @default(PENDING)
+  items      OrderItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([customerId])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SalesRecord {
+  id        String   @id @default(cuid())
+  date      DateTime
+  amount    Float
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
+enum ProductStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELED
+}

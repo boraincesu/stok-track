@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Area,
   AreaChart,
@@ -12,51 +13,103 @@ import {
   YAxis,
 } from "recharts";
 
-import { CATEGORY_DATA, REVENUE_DATA } from "@/data/dashboard";
+import type { Order, Product } from "@/types/dashboard";
 
-const CATEGORY_COLORS = ["#137fec", "#10b981", "#f59e0b", "#ef4444"];
+interface ReportsPageProps {
+  orders: Order[];
+  products: Product[];
+}
 
-export function ReportsPage() {
+const CATEGORY_COLORS = ["#137fec", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+
+export function ReportsPage({ orders, products }: ReportsPageProps) {
+  // Gerçek verilerden istatistikler hesapla
+  const stats = useMemo(() => {
+    const completedOrders = orders.filter((o) => o.status === "Completed");
+    const totalRevenue = completedOrders.reduce((sum, o) => sum + o.amount, 0);
+    const avgOrderValue =
+      completedOrders.length > 0 ? totalRevenue / completedOrders.length : 0;
+    const conversionRate =
+      orders.length > 0 ? (completedOrders.length / orders.length) * 100 : 0;
+
+    return {
+      totalRevenue,
+      avgOrderValue,
+      conversionRate,
+    };
+  }, [orders]);
+
+  // Kategori bazlı satış verileri
+  const categoryData = useMemo(() => {
+    const categoryCount: Record<string, number> = {};
+    products.forEach((p) => {
+      categoryCount[p.category] = (categoryCount[p.category] || 0) + 1;
+    });
+    return Object.entries(categoryCount).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [products]);
+
+  // Son 6 ay için revenue trend (mock, gerçek uygulama için API'den gelir)
+  const revenueData = useMemo(() => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+    const totalRevenue = orders
+      .filter((o) => o.status === "Completed")
+      .reduce((sum, o) => sum + o.amount, 0);
+
+    // Basit dağılım simülasyonu
+    return months.map((name) => ({
+      name,
+      revenue: Math.round((totalRevenue / 6) * (0.8 + Math.random() * 0.4)),
+    }));
+  }, [orders]);
+
+  const reportCards = [
+    {
+      label: "Total Revenue",
+      value: `$${stats.totalRevenue.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
+      delta: `${
+        orders.filter((o) => o.status === "Completed").length
+      } completed orders`,
+      positive: true,
+    },
+    {
+      label: "Avg. Order Value",
+      value: `$${stats.avgOrderValue.toFixed(2)}`,
+      delta: `From ${orders.length} total orders`,
+      positive: stats.avgOrderValue > 0,
+    },
+    {
+      label: "Conversion Rate",
+      value: `${stats.conversionRate.toFixed(1)}%`,
+      delta: `Completed vs total orders`,
+      positive: stats.conversionRate > 50,
+    },
+  ];
+
   return (
     <section className="flex flex-col gap-6">
       <header>
-        <h2 className="text-xl font-bold text-text-light-primary dark:text-dark-primary">
+        <h2 className="text-xl font-bold text-text-light-primary">
           Analytics & Reports
         </h2>
-        <p className="text-sm text-text-light-secondary dark:text-dark-secondary">
+        <p className="text-sm text-text-light-secondary">
           Get a quick pulse on revenue growth and category performance.
         </p>
       </header>
 
       <div className="grid gap-4 md:grid-cols-3">
-        {[
-          {
-            label: "Total Revenue",
-            value: "$124,500",
-            delta: "+12.5% vs last year",
-            positive: true,
-          },
-          {
-            label: "Avg. Order Value",
-            value: "$145.20",
-            delta: "+3.2% vs last month",
-            positive: true,
-          },
-          {
-            label: "Conversion Rate",
-            value: "3.6%",
-            delta: "-0.4% vs last month",
-            positive: false,
-          },
-        ].map((card) => (
+        {reportCards.map((card) => (
           <article
             key={card.label}
-            className="rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-6 shadow-sm"
+            className="rounded-xl border border-border-light bg-card-light p-6 shadow-sm"
           >
-            <p className="text-sm text-text-light-secondary dark:text-dark-secondary">
-              {card.label}
-            </p>
-            <p className="text-2xl font-bold text-text-light-primary dark:text-dark-primary">
+            <p className="text-sm text-text-light-secondary">{card.label}</p>
+            <p className="text-2xl font-bold text-text-light-primary">
               {card.value}
             </p>
             <p
@@ -70,93 +123,122 @@ export function ReportsPage() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <article className="flex h-[400px] flex-col rounded-2xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-text-light-primary dark:text-dark-primary">
-            Revenue Trend
-          </h3>
-          <div className="mt-4 flex-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={REVENUE_DATA}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#137fec" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#137fec" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke="#e2e8f0"
-                  opacity={0.6}
-                />
-                <XAxis
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#6b7280", fontSize: 12 }}
-                  dy={10}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#6b7280", fontSize: 12 }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: "1px solid #e2e8f0",
-                  }}
-                  labelStyle={{ fontWeight: 600 }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#137fec"
-                  strokeWidth={3}
-                  fill="url(#colorRevenue)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </article>
-        <article className="flex h-[400px] flex-col rounded-2xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-text-light-primary dark:text-dark-primary">
-            Sales by Category
-          </h3>
-          <div className="mt-4 flex-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={CATEGORY_DATA}
-                  dataKey="value"
-                  innerRadius={80}
-                  outerRadius={120}
-                  paddingAngle={5}
+      {orders.length === 0 && products.length === 0 ? (
+        <div className="text-center py-12 text-text-light-secondary">
+          <span className="material-symbols-outlined text-4xl mb-2">
+            analytics
+          </span>
+          <p>No data available yet. Add products and orders to see reports.</p>
+        </div>
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <article className="flex h-[400px] flex-col rounded-2xl border border-border-light bg-card-light p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-text-light-primary">
+              Revenue Trend
+            </h3>
+            <div className="mt-4 flex-1">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={revenueData}
+                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                 >
-                  {CATEGORY_DATA.map((entry, index) => (
-                    <Cell
-                      key={entry.name}
-                      fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]}
-                      strokeWidth={0}
+                  <defs>
+                    <linearGradient
+                      id="colorRevenue"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor="#137fec"
+                        stopOpacity={0.25}
+                      />
+                      <stop offset="95%" stopColor="#137fec" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#e2e8f0"
+                    opacity={0.6}
+                  />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#6b7280", fontSize: 12 }}
+                    dy={10}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#6b7280", fontSize: 12 }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid #e2e8f0",
+                    }}
+                    labelStyle={{ fontWeight: 600 }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#137fec"
+                    strokeWidth={3}
+                    fill="url(#colorRevenue)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </article>
+          <article className="flex h-[400px] flex-col rounded-2xl border border-border-light bg-card-light p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-text-light-primary">
+              Sales by Category
+            </h3>
+            <div className="mt-4 flex-1">
+              {categoryData.length === 0 ? (
+                <div className="flex h-full items-center justify-center text-text-light-secondary">
+                  <p>No category data available</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      dataKey="value"
+                      innerRadius={80}
+                      outerRadius={120}
+                      paddingAngle={5}
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell
+                          key={entry.name}
+                          fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]}
+                          strokeWidth={0}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: 12,
+                        border: "1px solid #e2e8f0",
+                      }}
                     />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: "1px solid #e2e8f0",
-                  }}
-                />
-                <Legend verticalAlign="bottom" iconType="circle" height={36} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </article>
-      </div>
+                    <Legend
+                      verticalAlign="bottom"
+                      iconType="circle"
+                      height={36}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </article>
+        </div>
+      )}
     </section>
   );
 }
