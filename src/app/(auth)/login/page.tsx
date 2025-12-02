@@ -70,8 +70,14 @@ function LoginForm() {
           </div>
           <div className="relative z-10 flex h-full w-full flex-col justify-between bg-gradient-to-r from-slate-950/80 via-slate-900/70 to-slate-900/20 px-10 py-12 text-white">
             <div className="flex items-center gap-3 text-white">
-              <img src="/images/mari-logo.webp" alt="Marisonia Logo" className="h-10 w-10 rounded-lg" />
-              <span className="text-2xl font-bold tracking-tight">Marisonia Stok Takip</span>
+              <img
+                src="/images/mari-logo.webp"
+                alt="Marisonia Logo"
+                className="h-10 w-10 rounded-lg"
+              />
+              <span className="text-2xl font-bold tracking-tight">
+                Marisonia Stok Takip
+              </span>
             </div>
             <div className="space-y-4">
               <h2 className="text-4xl font-black leading-tight xl:text-5xl">

@@ -3,13 +3,27 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 interface NewProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (payload: { name: string; category: string; price: number; stock: number }) => void;
+  onSubmit: (payload: {
+    name: string;
+    category: string;
+    price: number;
+    stock: number;
+  }) => void;
 }
 
 const CATEGORY_OPTIONS = ["Electronics", "Clothing", "Home", "Toys", "Books"];
 
-export function NewProductModal({ isOpen, onClose, onSubmit }: NewProductModalProps) {
-  const [formState, setFormState] = useState({ name: "", category: "", price: "", stock: "" });
+export function NewProductModal({
+  isOpen,
+  onClose,
+  onSubmit,
+}: NewProductModalProps) {
+  const [formState, setFormState] = useState({
+    name: "",
+    category: "",
+    price: "",
+    stock: "",
+  });
 
   if (!isOpen) return null;
 
@@ -25,7 +39,9 @@ export function NewProductModal({ isOpen, onClose, onSubmit }: NewProductModalPr
     onClose();
   };
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = event.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
   };
@@ -38,7 +54,9 @@ export function NewProductModal({ isOpen, onClose, onSubmit }: NewProductModalPr
             <p className="text-sm font-semibold text-text-light-secondary dark:text-dark-secondary uppercase tracking-[0.2em]">
               Inventory
             </p>
-            <h2 className="text-xl font-bold text-text-light-primary dark:text-dark-primary">Add New Product</h2>
+            <h2 className="text-xl font-bold text-text-light-primary dark:text-dark-primary">
+              Add New Product
+            </h2>
           </div>
           <button
             type="button"

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 interface StatsCardProps {
   title: string;
@@ -7,7 +7,12 @@ interface StatsCardProps {
   trendColor: string;
 }
 
-export function StatsCard({ title, value, change, trendColor }: StatsCardProps) {
+export function StatsCard({
+  title,
+  value,
+  change,
+  trendColor,
+}: StatsCardProps) {
   const emphasizeLowStock = title.toLowerCase().includes("low stock");
 
   return (
@@ -17,7 +22,9 @@ export function StatsCard({ title, value, change, trendColor }: StatsCardProps) 
       </p>
       <p
         className={`text-3xl font-bold tracking-tight ${
-          emphasizeLowStock ? "text-orange-500 dark:text-orange-400" : "text-text-light-primary dark:text-dark-primary"
+          emphasizeLowStock
+            ? "text-orange-500 dark:text-orange-400"
+            : "text-text-light-primary dark:text-dark-primary"
         }`}
       >
         {value}

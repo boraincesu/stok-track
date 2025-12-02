@@ -8,9 +8,12 @@ interface ProductsPageProps {
 }
 
 const STATUS_STYLES: Record<Product["status"], string> = {
-  "In Stock": "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  "Low Stock": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-  "Out of Stock": "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  "In Stock":
+    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  "Low Stock":
+    "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+  "Out of Stock":
+    "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
 
 export function ProductsPage({ products, searchTerm }: ProductsPageProps) {
@@ -18,14 +21,18 @@ export function ProductsPage({ products, searchTerm }: ProductsPageProps) {
     const normalized = searchTerm.trim().toLowerCase();
     if (!normalized) return products;
     return products.filter((product) =>
-      [product.name, product.category].some((value) => value.toLowerCase().includes(normalized))
+      [product.name, product.category].some((value) =>
+        value.toLowerCase().includes(normalized)
+      )
     );
   }, [products, searchTerm]);
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-text-light-primary dark:text-dark-primary">Product Inventory</h2>
+        <h2 className="text-xl font-bold text-text-light-primary dark:text-dark-primary">
+          Product Inventory
+        </h2>
         <div className="flex gap-2">
           <button className="px-4 py-2 text-sm font-medium text-text-light-secondary border border-border-light dark:border-border-dark rounded-lg hover:bg-background-light dark:hover:bg-card-dark transition-colors">
             Export
@@ -41,12 +48,24 @@ export function ProductsPage({ products, searchTerm }: ProductsPageProps) {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
-                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary">Product Name</th>
-                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary">Category</th>
-                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary">Price</th>
-                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary">Stock</th>
-                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary">Status</th>
-                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary text-right">Actions</th>
+                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary">
+                  Product Name
+                </th>
+                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary">
+                  Category
+                </th>
+                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary">
+                  Price
+                </th>
+                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary">
+                  Stock
+                </th>
+                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary">
+                  Status
+                </th>
+                <th className="p-4 text-sm font-bold text-text-light-secondary dark:text-dark-secondary text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -56,27 +75,46 @@ export function ProductsPage({ products, searchTerm }: ProductsPageProps) {
                   className="border-b border-border-light dark:border-border-dark hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors last:border-0"
                 >
                   <td className="p-4">
-                    <p className="font-medium text-text-light-primary dark:text-dark-primary">{product.name}</p>
-                    <p className="text-xs text-text-light-secondary dark:text-dark-secondary md:hidden">{product.category}</p>
+                    <p className="font-medium text-text-light-primary dark:text-dark-primary">
+                      {product.name}
+                    </p>
+                    <p className="text-xs text-text-light-secondary dark:text-dark-secondary md:hidden">
+                      {product.category}
+                    </p>
                   </td>
-                  <td className="p-4 text-sm text-text-light-secondary dark:text-dark-secondary hidden md:table-cell">{product.category}</td>
-                  <td className="p-4 text-sm font-medium text-text-light-primary dark:text-dark-primary">${product.price.toFixed(2)}</td>
-                  <td className="p-4 text-sm text-text-light-secondary dark:text-dark-secondary">{product.stock}</td>
+                  <td className="p-4 text-sm text-text-light-secondary dark:text-dark-secondary hidden md:table-cell">
+                    {product.category}
+                  </td>
+                  <td className="p-4 text-sm font-medium text-text-light-primary dark:text-dark-primary">
+                    ${product.price.toFixed(2)}
+                  </td>
+                  <td className="p-4 text-sm text-text-light-secondary dark:text-dark-secondary">
+                    {product.stock}
+                  </td>
                   <td className="p-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[product.status]}`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        STATUS_STYLES[product.status]
+                      }`}
+                    >
                       {product.status}
                     </span>
                   </td>
                   <td className="p-4 text-right">
                     <button className="text-text-light-secondary hover:text-primary transition-colors">
-                      <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                      <span className="material-symbols-outlined text-[20px]">
+                        more_vert
+                      </span>
                     </button>
                   </td>
                 </tr>
               ))}
               {filteredProducts.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-text-light-secondary">
+                  <td
+                    colSpan={6}
+                    className="p-8 text-center text-text-light-secondary"
+                  >
                     No products found matching "{searchTerm}"
                   </td>
                 </tr>

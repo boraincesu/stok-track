@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Image from "next/image";
 
@@ -21,8 +21,16 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   return (
     <aside className="hidden w-64 flex-col bg-card-light p-4 border-r border-border-light md:flex sticky top-0 h-screen overflow-y-auto">
       <div className="flex items-center gap-3 px-2 mb-8">
-        <Image src="/images/mari-logo.webp" alt="Marisonia Logo" width={40} height={40} className="rounded-lg" />
-        <h1 className="text-xl font-bold text-text-light-primary">Marisonia Stok Takip</h1>
+        <Image
+          src="/images/mari-logo.webp"
+          alt="Marisonia Logo"
+          width={40}
+          height={40}
+          className="rounded-lg"
+        />
+        <h1 className="text-xl font-bold text-text-light-primary">
+          Marisonia Stok Takip
+        </h1>
       </div>
 
       <div className="flex flex-col gap-4 flex-1">
@@ -40,10 +48,20 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
                     : "hover:bg-primary/10 text-text-light-secondary"
                 }`}
               >
-                <span className={`material-symbols-outlined ${!isActive ? "text-text-light-secondary" : ""}`}>
+                <span
+                  className={`material-symbols-outlined ${
+                    !isActive ? "text-text-light-secondary" : ""
+                  }`}
+                >
                   {item.icon}
                 </span>
-                <p className={`text-sm ${isActive ? "font-bold" : "font-medium"}`}>{item.label}</p>
+                <p
+                  className={`text-sm ${
+                    isActive ? "font-bold" : "font-medium"
+                  }`}
+                >
+                  {item.label}
+                </p>
               </button>
             );
           })}
@@ -71,7 +89,9 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           className="ml-auto p-1 hover:bg-gray-100 rounded"
           aria-label="Log out"
         >
-          <span className="material-symbols-outlined text-text-light-secondary text-[20px]">logout</span>
+          <span className="material-symbols-outlined text-text-light-secondary text-[20px]">
+            logout
+          </span>
         </button>
       </div>
     </aside>

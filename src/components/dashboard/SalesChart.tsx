@@ -1,6 +1,13 @@
-'use client';
+"use client";
 
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+} from "recharts";
 
 import { SALES_DATA } from "@/data/dashboard";
 
@@ -17,13 +24,18 @@ export function SalesChart() {
           </p>
         </div>
         <div className="flex items-center gap-1">
-          <p className="text-sm font-medium text-green-600 dark:text-green-400">+12.5%</p>
+          <p className="text-sm font-medium text-green-600 dark:text-green-400">
+            +12.5%
+          </p>
         </div>
       </div>
 
       <div className="flex-1 w-full min-h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={SALES_DATA} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+          <BarChart
+            data={SALES_DATA}
+            margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
+          >
             <XAxis
               dataKey="name"
               axisLine={false}
@@ -43,7 +55,10 @@ export function SalesChart() {
             />
             <Bar dataKey="sales" radius={[8, 8, 0, 0]} barSize={60}>
               {SALES_DATA.map((entry, index) => (
-                <Cell key={entry.name} fill={index === 2 ? "#137fec" : "rgba(19, 127, 236, 0.2)"} />
+                <Cell
+                  key={entry.name}
+                  fill={index === 2 ? "#137fec" : "rgba(19, 127, 236, 0.2)"}
+                />
               ))}
             </Bar>
           </BarChart>

@@ -17,7 +17,10 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
         <h3 className="text-base font-medium text-text-light-primary dark:text-dark-primary">
           Recent Orders
         </h3>
-        <button type="button" className="text-sm font-bold text-primary hover:underline">
+        <button
+          type="button"
+          className="text-sm font-bold text-primary hover:underline"
+        >
           View All
         </button>
       </div>
@@ -29,7 +32,9 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
               className="flex items-center gap-4 group cursor-pointer p-2 hover:bg-background-light dark:hover:bg-background-dark rounded-lg transition-colors"
             >
               <div className="flex items-center justify-center size-10 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors shrink-0">
-                <span className="material-symbols-outlined text-primary">shopping_bag</span>
+                <span className="material-symbols-outlined text-primary">
+                  shopping_bag
+                </span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm text-text-light-primary dark:text-dark-primary truncate">
@@ -43,12 +48,16 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
                 <p className="font-bold text-sm text-text-light-primary dark:text-dark-primary">
                   ${order.amount.toFixed(2)}
                 </p>
-                <p className={`text-xs ${STATUS_COLOR[order.status]}`}>{order.status}</p>
+                <p className={`text-xs ${STATUS_COLOR[order.status]}`}>
+                  {order.status}
+                </p>
               </div>
             </div>
           ))
         ) : (
-          <div className="text-center py-8 text-text-light-secondary">No orders found.</div>
+          <div className="text-center py-8 text-text-light-secondary">
+            No orders found.
+          </div>
         )}
       </div>
     </div>

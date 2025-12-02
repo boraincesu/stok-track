@@ -108,8 +108,14 @@ export default function SignupPage() {
           <div className="w-full max-w-md space-y-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <img src="/images/mari-logo.webp" alt="Marisonia Logo" className="h-10 w-10 rounded-lg" />
-                <h1 className="text-2xl font-bold tracking-tight">Marisonia Stok Takip</h1>
+                <img
+                  src="/images/mari-logo.webp"
+                  alt="Marisonia Logo"
+                  className="h-10 w-10 rounded-lg"
+                />
+                <h1 className="text-2xl font-bold tracking-tight">
+                  Marisonia Stok Takip
+                </h1>
               </div>
               <header className="space-y-2">
                 <p className="text-4xl font-black leading-tight tracking-tight">

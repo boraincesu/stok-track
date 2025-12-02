@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import type { Dispatch, SetStateAction } from "react";
 
@@ -8,7 +8,11 @@ interface HeaderProps {
   onAddProduct: () => void;
 }
 
-export function Header({ searchTerm, setSearchTerm, onAddProduct }: HeaderProps) {
+export function Header({
+  searchTerm,
+  setSearchTerm,
+  onAddProduct,
+}: HeaderProps) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-4 mb-8">
       <div>
