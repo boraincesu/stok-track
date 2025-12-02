@@ -108,17 +108,8 @@ export default function SignupPage() {
           <div className="w-full max-w-md space-y-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <svg
-                  className="h-9 w-9 text-blue-500"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                >
-                  <path d="M12 2 2 7l10 5 10-5-10-5Z" />
-                  <path d="M2 12v5l10 5 10-5v-5" />
-                  <path d="M2 12 12 7l10 5" />
-                </svg>
-                <h1 className="text-2xl font-bold tracking-tight">Marisonia</h1>
+                <img src="/images/mari-logo.webp" alt="Marisonia Logo" className="h-10 w-10 rounded-lg" />
+                <h1 className="text-2xl font-bold tracking-tight">Marisonia Stok Takip</h1>
               </div>
               <header className="space-y-2">
                 <p className="text-4xl font-black leading-tight tracking-tight">

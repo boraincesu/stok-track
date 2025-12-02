@@ -22,7 +22,9 @@ function LoginForm() {
   const backgroundStyle = useMemo(
     () => ({
       backgroundImage:
-        "linear-gradient(120deg, rgba(15,23,42,0.95), rgba(15,23,42,0.75)), url('https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&w=1200&q=80')",
+        "linear-gradient(120deg, rgba(15,23,42,0.85), rgba(15,23,42,0.6)), url('https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&w=1600&q=80')",
+      backgroundPosition: "left center",
+      backgroundSize: "cover",
     }),
     []
   );
@@ -62,26 +64,23 @@ function LoginForm() {
     >
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col bg-[#f6f7f8] lg:flex-row">
         {/* Left branding panel */}
-        <aside className="relative hidden flex-1 flex-col justify-between overflow-hidden bg-slate-900 p-8 lg:flex">
-          <div className="absolute inset-0" aria-hidden>
-            <div
-              className="h-full w-full bg-cover bg-center"
-              style={backgroundStyle}
-            />
+        <aside className="relative hidden flex-1 overflow-hidden lg:flex">
+          <div className="absolute inset-0 bg-left" aria-hidden>
+            <div className="h-full w-full" style={backgroundStyle} />
           </div>
-          <div className="relative z-10 flex items-center gap-2 text-white">
-            <span aria-hidden className="text-3xl">
-              📦
-            </span>
-            <span className="text-2xl font-bold tracking-tight">Marisonia</span>
-          </div>
-          <div className="relative z-10 mt-auto">
-            <h2 className="text-4xl font-black leading-tight text-white xl:text-5xl">
-              Streamline your inventory. Maximize your efficiency.
-            </h2>
-            <p className="mt-4 text-base text-slate-300">
-              The ultimate stock tracking solution for modern businesses.
-            </p>
+          <div className="relative z-10 flex h-full w-full flex-col justify-between bg-gradient-to-r from-slate-950/80 via-slate-900/70 to-slate-900/20 px-10 py-12 text-white">
+            <div className="flex items-center gap-3 text-white">
+              <img src="/images/mari-logo.webp" alt="Marisonia Logo" className="h-10 w-10 rounded-lg" />
+              <span className="text-2xl font-bold tracking-tight">Marisonia Stok Takip</span>
+            </div>
+            <div className="space-y-4">
+              <h2 className="text-4xl font-black leading-tight xl:text-5xl">
+                Streamline your inventory. Maximize your efficiency.
+              </h2>
+              <p className="text-base text-slate-200">
+                The ultimate stock tracking solution for modern businesses.
+              </p>
+            </div>
           </div>
         </aside>
 
