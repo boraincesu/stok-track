@@ -2,8 +2,15 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, Suspense, useState } from "react";
+import { FormEvent, Suspense, useMemo, useState } from "react";
 import { signIn } from "next-auth/react";
+import { Manrope } from "next/font/google";
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-manrope",
+});
 
 function LoginForm() {
   const router = useRouter();
@@ -12,6 +19,13 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const backgroundStyle = useMemo(
+    () => ({
+      backgroundImage:
+        "linear-gradient(120deg, rgba(15,23,42,0.95), rgba(15,23,42,0.75)), url('https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&w=1200&q=80')",
+    }),
+    []
+  );
 
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
 
@@ -43,95 +57,135 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#e8f0ff,_#f7f9fc)] px-4 py-12">
-      <div className="w-full max-w-md space-y-6 rounded-3xl border border-slate-200 bg-white/95 p-8 text-slate-900 shadow-[0_25px_80px_rgba(15,23,42,0.08)]">
-        <div className="space-y-1 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
-            Secure access
-          </p>
-          <h1 className="text-3xl font-semibold text-slate-900">
-            Welcome back
-          </h1>
-          <p className="text-sm text-slate-600">
-            Sign in to continue to your dashboard.
-          </p>
-        </div>
-
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-1">
-            <label
-              className="text-sm font-medium text-slate-700"
-              htmlFor="email"
-            >
-              Email
-            </label>
-            <input
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              id="email"
-              name="email"
-              type="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="you@example.com"
+    <main
+      className={`${manrope.className} min-h-screen bg-[#f6f7f8] text-slate-900`}
+    >
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col bg-[#f6f7f8] lg:flex-row">
+        {/* Left branding panel */}
+        <aside className="relative hidden flex-1 flex-col justify-between overflow-hidden bg-slate-900 p-8 lg:flex">
+          <div className="absolute inset-0" aria-hidden>
+            <div
+              className="h-full w-full bg-cover bg-center"
+              style={backgroundStyle}
             />
           </div>
-          <div className="space-y-1">
-            <label
-              className="text-sm font-medium text-slate-700"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <input
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              id="password"
-              name="password"
-              type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="••••••••"
-            />
+          <div className="relative z-10 flex items-center gap-2 text-white">
+            <span aria-hidden className="text-3xl">
+              📦
+            </span>
+            <span className="text-2xl font-bold tracking-tight">Marisonia</span>
           </div>
-
-          {error ? (
-            <p className="text-sm text-rose-500" role="alert">
-              {error}
+          <div className="relative z-10 mt-auto">
+            <h2 className="text-4xl font-black leading-tight text-white xl:text-5xl">
+              Streamline your inventory. Maximize your efficiency.
+            </h2>
+            <p className="mt-4 text-base text-slate-300">
+              The ultimate stock tracking solution for modern businesses.
             </p>
-          ) : null}
+          </div>
+        </aside>
 
-          <button
-            className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
-            disabled={isSubmitting}
-            type="submit"
-          >
-            {isSubmitting ? "Signing in..." : "Log in"}
-          </button>
-        </form>
+        {/* Right form panel */}
+        <section className="flex w-full flex-1 items-center justify-center bg-[#f6f7f8] px-4 py-12 sm:px-8 lg:px-12">
+          <div className="w-full max-w-md space-y-8">
+            <header className="space-y-2">
+              <p className="text-sm font-semibold uppercase tracking-[0.4em] text-slate-500">
+                Access portal
+              </p>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Sign in to your account
+              </h1>
+              <p className="text-base text-slate-600">
+                Welcome back! Please enter your details.
+              </p>
+            </header>
 
-        <p className="text-center text-sm text-slate-600">
-          Need an account?{" "}
-          <Link
-            className="font-semibold text-blue-700 hover:text-blue-600"
-            href="/signup"
-          >
-            Sign up
-          </Link>
-        </p>
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <label className="block space-y-2 text-sm font-medium text-slate-800">
+                Email
+                <div className="flex items-center rounded-2xl border border-slate-300 bg-white px-4 transition focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100">
+                  <span aria-hidden className="text-slate-400">
+                    ✉️
+                  </span>
+                  <input
+                    className="h-12 flex-1 bg-transparent px-3 text-base text-slate-900 outline-none"
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    required
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                  />
+                </div>
+              </label>
+
+              <label className="block space-y-2 text-sm font-medium text-slate-800">
+                Password
+                <div className="flex items-center rounded-2xl border border-slate-300 bg-white px-4 transition focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100">
+                  <span aria-hidden className="text-slate-400">
+                    🔒
+                  </span>
+                  <input
+                    className="h-12 flex-1 bg-transparent px-3 text-base text-slate-900 outline-none"
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    required
+                    minLength={8}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                  />
+                </div>
+              </label>
+
+              {error ? (
+                <p
+                  className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600"
+                  role="alert"
+                >
+                  {error}
+                </p>
+              ) : null}
+
+              <div className="flex items-center justify-end text-sm font-medium">
+                <Link
+                  className="text-blue-600 hover:text-blue-500"
+                  href="/forgot-password"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
+              <button
+                className="flex h-14 w-full items-center justify-center rounded-2xl bg-blue-600 text-base font-semibold text-white transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+                disabled={isSubmitting}
+                type="submit"
+              >
+                {isSubmitting ? "Signing in..." : "Login"}
+              </button>
+            </form>
+
+            <p className="text-center text-sm text-slate-600">
+              Need an account?{" "}
+              <Link
+                className="font-semibold text-blue-600 hover:text-blue-500"
+                href="/signup"
+              >
+                Sign up
+              </Link>
+            </p>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#e8f0ff,_#f7f9fc)]" />
-      }
-    >
+    <Suspense fallback={<div className="min-h-screen bg-[#f6f7f8]" />}>
       <LoginForm />
     </Suspense>
   );

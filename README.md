@@ -27,11 +27,21 @@ DATABASE_URL="postgresql://<user>:<password>@<supabase-host>:6543/postgres?pgbou
 DIRECT_URL="postgresql://<user>:<password>@<supabase-host>:5432/postgres"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="replace-with-strong-secret"
+APP_URL="http://localhost:3000"
+SMTP_HOST="smtp.mailprovider.com"
+SMTP_PORT=465
+SMTP_USER="smtp-user@example.com"
+SMTP_PASS="smtp-password"
+EMAIL_FROM="Stock Tracker <notifications@example.com>"
+PASSWORD_RESET_TOKEN_SECRET="replace-with-another-strong-secret"
 ```
 
 - `DATABASE_URL` points to Supabase connection pooling (pgBouncer) for runtime usage.
 - `DIRECT_URL` points to the direct Postgres connection used by Prisma Migrate.
 - `NEXTAUTH_SECRET` must be a long random string (e.g., `openssl rand -hex 32`).
+- `APP_URL` is the absolute origin used to build reset links (falls back to `NEXTAUTH_URL`).
+- `SMTP_*` / `EMAIL_FROM` configure Nodemailer for password reset emails.
+- `PASSWORD_RESET_TOKEN_SECRET` signs the single-use JWT reset tokens (keep it distinct from `NEXTAUTH_SECRET`).
 
 ## Database & Prisma
 

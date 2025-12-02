@@ -2,8 +2,15 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import { signIn } from "next-auth/react";
+import { Manrope } from "next/font/google";
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-manrope",
+});
 
 interface FormState {
   name: string;
@@ -24,6 +31,13 @@ export default function SignupPage() {
   const [formValues, setFormValues] = useState<FormState>(initialState);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const heroStyle = useMemo(
+    () => ({
+      backgroundImage:
+        "url('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1100&q=80')",
+    }),
+    []
+  );
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -78,121 +92,155 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#e8f0ff,_#f7f9fc)] px-4 py-12">
-      <div className="w-full max-w-md space-y-6 rounded-3xl border border-slate-200 bg-white/95 p-8 text-slate-900 shadow-[0_25px_80px_rgba(15,23,42,0.08)]">
-        <div className="space-y-1 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
-            Secure onboarding
-          </p>
-          <h1 className="text-3xl font-semibold text-slate-900">
-            Create an account
-          </h1>
-          <p className="text-sm text-slate-600">
-            Start tracking inventory by creating your free account.
-          </p>
+    <main
+      className={`${manrope.className} min-h-screen bg-[#F7F9FC] text-[#0d141b]`}
+    >
+      <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
+        <div className="relative hidden items-center justify-center bg-slate-100 p-8 md:flex">
+          <div
+            aria-hidden
+            className="h-full w-full rounded-3xl bg-cover bg-center"
+            style={heroStyle}
+          />
         </div>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-1">
-            <label
-              className="text-sm font-medium text-slate-700"
-              htmlFor="name"
-            >
-              Name
-            </label>
-            <input
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              id="name"
-              name="name"
-              type="text"
-              required
-              minLength={2}
-              value={formValues.name}
-              onChange={handleChange}
-              placeholder="Ada Lovelace"
-            />
-          </div>
-          <div className="space-y-1">
-            <label
-              className="text-sm font-medium text-slate-700"
-              htmlFor="email"
-            >
-              Email
-            </label>
-            <input
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              id="email"
-              name="email"
-              type="email"
-              required
-              value={formValues.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-            />
-          </div>
-          <div className="space-y-1">
-            <label
-              className="text-sm font-medium text-slate-700"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <input
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              id="password"
-              name="password"
-              type="password"
-              required
-              minLength={8}
-              value={formValues.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-            />
-          </div>
-          <div className="space-y-1">
-            <label
-              className="text-sm font-medium text-slate-700"
-              htmlFor="confirmPassword"
-            >
-              Confirm Password
-            </label>
-            <input
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              required
-              minLength={8}
-              value={formValues.confirmPassword}
-              onChange={handleChange}
-              placeholder="••••••••"
-            />
-          </div>
 
-          {error ? (
-            <p className="text-sm text-rose-500" role="alert">
-              {error}
-            </p>
-          ) : null}
+        <section className="flex w-full items-center justify-center px-6 py-12 sm:px-12">
+          <div className="w-full max-w-md space-y-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <svg
+                  className="h-9 w-9 text-blue-500"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path d="M12 2 2 7l10 5 10-5-10-5Z" />
+                  <path d="M2 12v5l10 5 10-5v-5" />
+                  <path d="M2 12 12 7l10 5" />
+                </svg>
+                <h1 className="text-2xl font-bold tracking-tight">Marisonia</h1>
+              </div>
+              <header className="space-y-2">
+                <p className="text-4xl font-black leading-tight tracking-tight">
+                  Create your account
+                </p>
+                <p className="text-base text-[#4c739a]">
+                  Start managing your inventory with ease.
+                </p>
+              </header>
+            </div>
 
-          <button
-            className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
-            disabled={isSubmitting}
-            type="submit"
-          >
-            {isSubmitting ? "Creating account..." : "Sign up"}
-          </button>
-        </form>
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <label className="block space-y-2 text-base font-medium">
+                Full name
+                <input
+                  className="h-14 w-full rounded-2xl border border-[#cfdbe7] bg-[#F7F9FC] px-4 text-base text-[#0d141b] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="Enter your full name"
+                  required
+                  minLength={2}
+                  value={formValues.name}
+                  onChange={handleChange}
+                />
+              </label>
 
-        <p className="text-center text-sm text-slate-600">
-          Already have an account?{" "}
-          <Link
-            className="font-semibold text-blue-700 hover:text-blue-600"
-            href="/login"
-          >
-            Log in
-          </Link>
-        </p>
+              <label className="block space-y-2 text-base font-medium">
+                Work email
+                <input
+                  className="h-14 w-full rounded-2xl border border-[#cfdbe7] bg-[#F7F9FC] px-4 text-base text-[#0d141b] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your work email"
+                  required
+                  value={formValues.email}
+                  onChange={handleChange}
+                />
+              </label>
+
+              <label className="block space-y-2 text-base font-medium">
+                Password
+                <div className="flex rounded-2xl border border-[#cfdbe7] bg-[#F7F9FC]">
+                  <input
+                    className="h-14 w-full flex-1 rounded-l-2xl border-r border-r-transparent bg-transparent px-4 text-base text-[#0d141b] outline-none"
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    required
+                    minLength={8}
+                    value={formValues.password}
+                    onChange={handleChange}
+                  />
+                  <span
+                    className="flex items-center px-4 text-[#4c739a]"
+                    aria-hidden
+                  >
+                    👁‍🗨
+                  </span>
+                </div>
+              </label>
+
+              <label className="block space-y-2 text-base font-medium">
+                Confirm password
+                <input
+                  className="h-14 w-full rounded-2xl border border-[#cfdbe7] bg-[#F7F9FC] px-4 text-base text-[#0d141b] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Confirm your password"
+                  required
+                  minLength={8}
+                  value={formValues.confirmPassword}
+                  onChange={handleChange}
+                />
+              </label>
+
+              {error ? (
+                <p
+                  className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600"
+                  role="alert"
+                >
+                  {error}
+                </p>
+              ) : null}
+
+              <button
+                className="flex h-14 w-full items-center justify-center rounded-2xl bg-blue-600 text-base font-semibold text-white transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+                disabled={isSubmitting}
+                type="submit"
+              >
+                {isSubmitting ? "Creating account..." : "Sign up"}
+              </button>
+            </form>
+
+            <div className="space-y-3 text-center text-sm text-[#4c739a]">
+              <p>
+                Already have an account?{" "}
+                <Link
+                  className="font-semibold text-blue-600 hover:text-blue-500"
+                  href="/login"
+                >
+                  Log in
+                </Link>
+              </p>
+              <p className="text-xs text-slate-500">
+                By signing up, you agree to our{" "}
+                <Link className="underline hover:text-blue-600" href="#">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link className="underline hover:text-blue-600" href="#">
+                  Privacy Policy
+                </Link>
+                .
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
