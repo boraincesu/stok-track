@@ -14,6 +14,7 @@ export type Product = {
   name: string;
   category: string;
   price: number;
+  costPrice: number;
   stock: number;
   status: ProductStatus;
 };

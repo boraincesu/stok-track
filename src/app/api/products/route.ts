@@ -21,6 +21,7 @@ export async function GET() {
       name: p.name,
       category: p.category.name,
       price: p.price,
+      costPrice: p.costPrice,
       stock: p.stock,
       status:
         p.status === "IN_STOCK"
@@ -44,7 +45,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, category, price, stock } = body;
+    const { name, category, price, costPrice, stock } = body;
 
     if (!name || !category || price === undefined || stock === undefined) {
       return NextResponse.json(
@@ -66,8 +67,9 @@ export async function POST(request: NextRequest) {
 
     const product = await prisma.product.create({
       data: {
-        name,
+        name: name.toUpperCase(),
         price: Number(price),
+        costPrice: Number(costPrice || 0),
         stock: Number(stock),
         status: deriveStatus(Number(stock)),
         categoryId: categoryRecord.id,
@@ -80,6 +82,7 @@ export async function POST(request: NextRequest) {
       name: product.name,
       category: product.category.name,
       price: product.price,
+      costPrice: product.costPrice,
       stock: product.stock,
       status:
         product.status === "IN_STOCK"
@@ -94,6 +97,20 @@ export async function POST(request: NextRequest) {
     console.error("Failed to create product:", error);
     return NextResponse.json(
       { error: "Failed to create product" },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/products - Tüm ürünleri sil
+export async function DELETE() {
+  try {
+    await prisma.product.deleteMany({});
+    return NextResponse.json({ message: "All products deleted" });
+  } catch (error) {
+    console.error("Failed to delete all products:", error);
+    return NextResponse.json(
+      { error: "Failed to delete all products" },
       { status: 500 }
     );
   }
