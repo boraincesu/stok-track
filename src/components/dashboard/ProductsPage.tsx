@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+"use client";
+
+import { useMemo, useState, useCallback } from "react";
 
 import type { Product } from "@/types/dashboard";
 
@@ -7,6 +9,7 @@ interface ProductsPageProps {
   searchTerm: string;
   onDelete?: (productId: string) => void;
   onUpdate?: (productId: string, updates: Partial<Product>) => void;
+  onDeleteAll?: () => void;
 }
 
 const STATUS_STYLES: Record<Product["status"], string> = {
@@ -15,28 +18,89 @@ const STATUS_STYLES: Record<Product["status"], string> = {
   "Out of Stock": "bg-red-100 text-red-700",
 };
 
+const STATUS_OPTIONS: Product["status"][] = [
+  "In Stock",
+  "Low Stock",
+  "Out of Stock",
+];
+
 export function ProductsPage({
   products,
   searchTerm,
   onDelete,
   onUpdate,
+  onDeleteAll,
 }: ProductsPageProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const [filters, setFilters] = useState({
+    category: "",
+    status: "" as Product["status"] | "",
+    minPrice: "",
+    maxPrice: "",
+    minStock: "",
+    maxStock: "",
+  });
+
+  // Kategorileri ürünlerden çıkar
+  const categories = useMemo(() => {
+    const cats = new Set(products.map((p) => p.category));
+    return Array.from(cats).sort();
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
+    let result = products;
+
+    // Arama filtresi
     const normalized = searchTerm.trim().toLowerCase();
-    if (!normalized) return products;
-    return products.filter((product) =>
-      [product.name, product.category].some((value) =>
-        value.toLowerCase().includes(normalized)
-      )
-    );
-  }, [products, searchTerm]);
+    if (normalized) {
+      result = result.filter((product) =>
+        [product.name, product.category].some((value) =>
+          value.toLowerCase().includes(normalized)
+        )
+      );
+    }
+
+    // Kategori filtresi
+    if (filters.category) {
+      result = result.filter((p) => p.category === filters.category);
+    }
+
+    // Status filtresi
+    if (filters.status) {
+      result = result.filter((p) => p.status === filters.status);
+    }
+
+    // Fiyat filtreleri
+    if (filters.minPrice) {
+      result = result.filter((p) => p.price >= Number(filters.minPrice));
+    }
+    if (filters.maxPrice) {
+      result = result.filter((p) => p.price <= Number(filters.maxPrice));
+    }
+
+    // Stok filtreleri
+    if (filters.minStock) {
+      result = result.filter((p) => p.stock >= Number(filters.minStock));
+    }
+    if (filters.maxStock) {
+      result = result.filter((p) => p.stock <= Number(filters.maxStock));
+    }
+
+    return result;
+  }, [products, searchTerm, filters]);
 
   const handleStartEdit = (product: Product) => {
     setEditingId(product.id);
-    setEditForm({ stock: product.stock, price: product.price });
+    setEditForm({
+      stock: product.stock,
+      price: product.price,
+      costPrice: product.costPrice,
+    });
     setMenuOpenId(null);
   };
 
@@ -53,23 +117,428 @@ export function ProductsPage({
     setEditForm({});
   };
 
+  const clearFilters = () => {
+    setFilters({
+      category: "",
+      status: "",
+      minPrice: "",
+      maxPrice: "",
+      minStock: "",
+      maxStock: "",
+    });
+  };
+
+  const hasActiveFilters = Object.values(filters).some((v) => v !== "");
+
+  // Export fonksiyonları
+  const exportToCSV = useCallback(() => {
+    const headers = [
+      "Name",
+      "Category",
+      "Selling Price",
+      "Cost Price",
+      "Stock",
+      "Status",
+      "Profit Margin",
+    ];
+    const rows = filteredProducts.map((p) => [
+      p.name,
+      p.category,
+      p.price.toFixed(2),
+      p.costPrice.toFixed(2),
+      p.stock.toString(),
+      p.status,
+      p.costPrice > 0
+        ? (((p.price - p.costPrice) / p.costPrice) * 100).toFixed(1) + "%"
+        : "N/A",
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `products_${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    setShowExportMenu(false);
+  }, [filteredProducts]);
+
+  const exportToPDF = useCallback(async () => {
+    // PDF oluştur - basit HTML tablosu olarak
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Product Inventory</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { color: #1a1a1a; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+            th { background: #f5f5f5; font-weight: bold; }
+            .in-stock { color: #16a34a; }
+            .low-stock { color: #ea580c; }
+            .out-of-stock { color: #dc2626; }
+            .summary { margin-top: 20px; font-size: 14px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <h1>Product Inventory Report</h1>
+          <p>Generated: ${new Date().toLocaleString()}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Selling Price</th>
+                <th>Cost Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Profit Margin</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredProducts
+                .map(
+                  (p) => `
+                <tr>
+                  <td>${p.name}</td>
+                  <td>${p.category}</td>
+                  <td>$${p.price.toFixed(2)}</td>
+                  <td>$${p.costPrice.toFixed(2)}</td>
+                  <td>${p.stock}</td>
+                  <td class="${p.status.toLowerCase().replace(" ", "-")}">${
+                    p.status
+                  }</td>
+                  <td>${
+                    p.costPrice > 0
+                      ? (((p.price - p.costPrice) / p.costPrice) * 100).toFixed(
+                          1
+                        ) + "%"
+                      : "N/A"
+                  }</td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+          <div class="summary">
+            <p>Total Products: ${filteredProducts.length}</p>
+            <p>Total Stock Value: $${filteredProducts
+              .reduce((sum, p) => sum + p.price * p.stock, 0)
+              .toLocaleString()}</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.print();
+    }
+    setShowExportMenu(false);
+  }, [filteredProducts]);
+
+  const exportToExcel = useCallback(() => {
+    // Excel-uyumlu HTML tablosu oluştur
+    const headers = [
+      "Name",
+      "Category",
+      "Selling Price",
+      "Cost Price",
+      "Stock",
+      "Status",
+      "Profit Margin",
+    ];
+    const rows = filteredProducts.map((p) => [
+      p.name,
+      p.category,
+      p.price,
+      p.costPrice,
+      p.stock,
+      p.status,
+      p.costPrice > 0 ? ((p.price - p.costPrice) / p.costPrice) * 100 : 0,
+    ]);
+
+    let tableHtml = '<table border="1">';
+    tableHtml +=
+      "<tr>" + headers.map((h) => `<th>${h}</th>`).join("") + "</tr>";
+    rows.forEach((row) => {
+      tableHtml +=
+        "<tr>" + row.map((cell) => `<td>${cell}</td>`).join("") + "</tr>";
+    });
+    tableHtml += "</table>";
+
+    const blob = new Blob(
+      [
+        `<html><head><meta charset="UTF-8"></head><body>${tableHtml}</body></html>`,
+      ],
+      { type: "application/vnd.ms-excel" }
+    );
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `products_${new Date().toISOString().split("T")[0]}.xls`;
+    link.click();
+    setShowExportMenu(false);
+  }, [filteredProducts]);
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-4">
         <h2 className="text-xl font-bold text-text-light-primary">
           Product Inventory
         </h2>
         <div className="flex gap-2">
-          <button className="px-4 py-2 text-sm font-medium text-text-light-secondary border border-border-light rounded-lg hover:bg-background-light transition-colors">
-            Export
-          </button>
-          <button className="px-4 py-2 text-sm font-medium text-text-light-secondary border border-border-light rounded-lg hover:bg-background-light transition-colors">
+          {/* Export Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="px-4 py-2 text-sm font-medium text-text-light-secondary border border-border-light rounded-lg hover:bg-background-light transition-colors flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                download
+              </span>
+              Export
+            </button>
+            {showExportMenu && (
+              <div className="absolute right-0 top-full mt-1 z-50 bg-white border border-border-light rounded-lg shadow-lg py-1 min-w-[160px]">
+                <button
+                  onClick={exportToCSV}
+                  className="w-full px-4 py-2 text-left text-sm text-text-light-primary hover:bg-background-light flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    description
+                  </span>
+                  Export as CSV
+                </button>
+                <button
+                  onClick={exportToExcel}
+                  className="w-full px-4 py-2 text-left text-sm text-text-light-primary hover:bg-background-light flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    table_chart
+                  </span>
+                  Export as Excel
+                </button>
+                <button
+                  onClick={exportToPDF}
+                  className="w-full px-4 py-2 text-left text-sm text-text-light-primary hover:bg-background-light flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    picture_as_pdf
+                  </span>
+                  Export as PDF
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Filters Button */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`px-4 py-2 text-sm font-medium border rounded-lg transition-colors flex items-center gap-2 ${
+              hasActiveFilters
+                ? "bg-primary text-white border-primary"
+                : "text-text-light-secondary border-border-light hover:bg-background-light"
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              filter_list
+            </span>
             Filters
+            {hasActiveFilters && (
+              <span className="bg-white text-primary text-xs rounded-full px-1.5">
+                {Object.values(filters).filter((v) => v !== "").length}
+              </span>
+            )}
           </button>
+
+          {/* Delete All Button */}
+          {products.length > 0 && (
+            <button
+              onClick={() => setShowDeleteAllConfirm(true)}
+              className="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                delete_sweep
+              </span>
+              Delete All
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="bg-card-light rounded-xl border border-border-light overflow-hidden shadow-sm">
+      {/* Delete All Confirmation Modal */}
+      {showDeleteAllConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <span className="material-symbols-outlined text-red-600 text-2xl">
+                  warning
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-text-light-primary">
+                  Delete All Products
+                </h3>
+                <p className="text-sm text-text-light-secondary">
+                  This action cannot be undone
+                </p>
+              </div>
+            </div>
+            <p className="text-text-light-secondary mb-6">
+              Are you sure you want to delete all{" "}
+              <strong>{products.length}</strong> products? This will permanently
+              remove all product data from the system.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteAllConfirm(false)}
+                className="px-4 py-2 text-sm font-medium text-text-light-secondary border border-border-light rounded-lg hover:bg-background-light transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  onDeleteAll?.();
+                  setShowDeleteAllConfirm(false);
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  delete_forever
+                </span>
+                Delete All Products
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter Panel */}
+      {showFilters && (
+        <div className="bg-card-light rounded-xl border border-border-light p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-text-light-primary">Filters</h3>
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="text-sm text-primary hover:text-primary/80"
+              >
+                Clear all
+              </button>
+            )}
+          </div>
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+            <div>
+              <label className="block text-xs font-medium text-text-light-secondary mb-1">
+                Category
+              </label>
+              <select
+                value={filters.category}
+                onChange={(e) =>
+                  setFilters({ ...filters, category: e.target.value })
+                }
+                className="w-full px-3 py-2 text-sm border border-border-light rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              >
+                <option value="">All Categories</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-text-light-secondary mb-1">
+                Status
+              </label>
+              <select
+                value={filters.status}
+                onChange={(e) =>
+                  setFilters({
+                    ...filters,
+                    status: e.target.value as Product["status"] | "",
+                  })
+                }
+                className="w-full px-3 py-2 text-sm border border-border-light rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              >
+                <option value="">All Statuses</option>
+                {STATUS_OPTIONS.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-text-light-secondary mb-1">
+                Min Price
+              </label>
+              <input
+                type="number"
+                value={filters.minPrice}
+                onChange={(e) =>
+                  setFilters({ ...filters, minPrice: e.target.value })
+                }
+                placeholder="0"
+                className="w-full px-3 py-2 text-sm border border-border-light rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-text-light-secondary mb-1">
+                Max Price
+              </label>
+              <input
+                type="number"
+                value={filters.maxPrice}
+                onChange={(e) =>
+                  setFilters({ ...filters, maxPrice: e.target.value })
+                }
+                placeholder="∞"
+                className="w-full px-3 py-2 text-sm border border-border-light rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-text-light-secondary mb-1">
+                Min Stock
+              </label>
+              <input
+                type="number"
+                value={filters.minStock}
+                onChange={(e) =>
+                  setFilters({ ...filters, minStock: e.target.value })
+                }
+                placeholder="0"
+                className="w-full px-3 py-2 text-sm border border-border-light rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-text-light-secondary mb-1">
+                Max Stock
+              </label>
+              <input
+                type="number"
+                value={filters.maxStock}
+                onChange={(e) =>
+                  setFilters({ ...filters, maxStock: e.target.value })
+                }
+                placeholder="∞"
+                className="w-full px-3 py-2 text-sm border border-border-light rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-card-light rounded-xl border border-border-light shadow-sm overflow-visible">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -81,7 +550,10 @@ export function ProductsPage({
                   Category
                 </th>
                 <th className="p-4 text-sm font-bold text-text-light-secondary">
-                  Price
+                  Selling Price
+                </th>
+                <th className="p-4 text-sm font-bold text-text-light-secondary">
+                  Cost Price
                 </th>
                 <th className="p-4 text-sm font-bold text-text-light-secondary">
                   Stock
@@ -133,6 +605,24 @@ export function ProductsPage({
                     {editingId === product.id ? (
                       <input
                         type="number"
+                        step="0.01"
+                        value={editForm.costPrice ?? product.costPrice}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            costPrice: Number(e.target.value),
+                          })
+                        }
+                        className="w-20 px-2 py-1 border border-border-light rounded text-sm"
+                      />
+                    ) : (
+                      `$${product.costPrice.toFixed(2)}`
+                    )}
+                  </td>
+                  <td className="p-4 text-sm text-text-light-secondary">
+                    {editingId === product.id ? (
+                      <input
+                        type="number"
                         value={editForm.stock ?? product.stock}
                         onChange={(e) =>
                           setEditForm({
@@ -155,7 +645,7 @@ export function ProductsPage({
                       {product.status}
                     </span>
                   </td>
-                  <td className="p-4 text-right relative">
+                  <td className="p-4 text-right">
                     {editingId === product.id ? (
                       <div className="flex gap-2 justify-end">
                         <button
@@ -178,7 +668,7 @@ export function ProductsPage({
                         </button>
                       </div>
                     ) : (
-                      <>
+                      <div className="relative inline-block">
                         <button
                           onClick={() =>
                             setMenuOpenId(
@@ -192,31 +682,46 @@ export function ProductsPage({
                           </span>
                         </button>
                         {menuOpenId === product.id && (
-                          <div className="absolute right-4 top-12 z-10 bg-white border border-border-light rounded-lg shadow-lg py-1 min-w-[120px]">
-                            <button
-                              onClick={() => handleStartEdit(product)}
-                              className="w-full px-4 py-2 text-left text-sm text-text-light-primary hover:bg-background-light flex items-center gap-2"
+                          <>
+                            {/* Backdrop to close menu */}
+                            <div
+                              className="fixed inset-0 z-40"
+                              onClick={() => setMenuOpenId(null)}
+                            />
+                            <div
+                              className={`absolute right-0 z-50 bg-white border border-border-light rounded-lg shadow-lg py-1 min-w-[120px] ${
+                                // Son 3 ürün için menüyü yukarı aç
+                                filteredProducts.indexOf(product) >=
+                                filteredProducts.length - 3
+                                  ? "bottom-full mb-1"
+                                  : "top-full mt-1"
+                              }`}
                             >
-                              <span className="material-symbols-outlined text-[18px]">
-                                edit
-                              </span>
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => {
-                                setMenuOpenId(null);
-                                onDelete?.(product.id);
-                              }}
-                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                            >
-                              <span className="material-symbols-outlined text-[18px]">
-                                delete
-                              </span>
-                              Delete
-                            </button>
-                          </div>
+                              <button
+                                onClick={() => handleStartEdit(product)}
+                                className="w-full px-4 py-2 text-left text-sm text-text-light-primary hover:bg-background-light flex items-center gap-2"
+                              >
+                                <span className="material-symbols-outlined text-[18px]">
+                                  edit
+                                </span>
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setMenuOpenId(null);
+                                  onDelete?.(product.id);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                              >
+                                <span className="material-symbols-outlined text-[18px]">
+                                  delete
+                                </span>
+                                Delete
+                              </button>
+                            </div>
+                          </>
                         )}
-                      </>
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -224,11 +729,11 @@ export function ProductsPage({
               {filteredProducts.length === 0 && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="p-8 text-center text-text-light-secondary"
                   >
-                    {searchTerm
-                      ? `No products found matching "${searchTerm}"`
+                    {searchTerm || hasActiveFilters
+                      ? "No products match your filters"
                       : "No products yet. Add your first product!"}
                   </td>
                 </tr>
@@ -237,6 +742,22 @@ export function ProductsPage({
           </table>
         </div>
       </div>
+
+      {/* Summary */}
+      {filteredProducts.length > 0 && (
+        <div className="flex gap-4 text-sm text-text-light-secondary">
+          <span>
+            Showing {filteredProducts.length} of {products.length} products
+          </span>
+          <span>•</span>
+          <span>
+            Total Stock Value: $
+            {filteredProducts
+              .reduce((sum, p) => sum + p.price * p.stock, 0)
+              .toLocaleString()}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

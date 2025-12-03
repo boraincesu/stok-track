@@ -62,10 +62,10 @@ function LoginForm() {
     <main
       className={`${manrope.className} min-h-screen bg-[#f6f7f8] text-slate-900`}
     >
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col bg-[#f6f7f8] lg:flex-row">
+      <div className="flex min-h-screen flex-col bg-[#f6f7f8] lg:flex-row">
         {/* Left branding panel */}
-        <aside className="relative hidden flex-1 overflow-hidden lg:flex">
-          <div className="absolute inset-0 bg-left" aria-hidden>
+        <aside className="relative hidden w-1/2 overflow-hidden lg:flex">
+          <div className="absolute inset-0" aria-hidden>
             <div className="h-full w-full" style={backgroundStyle} />
           </div>
           <div className="relative z-10 flex h-full w-full flex-col justify-between bg-gradient-to-r from-slate-950/80 via-slate-900/70 to-slate-900/20 px-10 py-12 text-white">

@@ -29,6 +29,7 @@ export async function GET(
       name: product.name,
       category: product.category.name,
       price: product.price,
+      costPrice: product.costPrice,
       stock: product.stock,
       status:
         product.status === "IN_STOCK"
@@ -56,11 +57,12 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { price, stock, name, category } = body;
+    const { price, costPrice, stock, name, category } = body;
 
     const updateData: Record<string, unknown> = {};
 
     if (price !== undefined) updateData.price = Number(price);
+    if (costPrice !== undefined) updateData.costPrice = Number(costPrice);
     if (stock !== undefined) {
       updateData.stock = Number(stock);
       updateData.status = deriveStatus(Number(stock));
@@ -92,6 +94,7 @@ export async function PATCH(
       name: product.name,
       category: product.category.name,
       price: product.price,
+      costPrice: product.costPrice,
       stock: product.stock,
       status:
         product.status === "IN_STOCK"

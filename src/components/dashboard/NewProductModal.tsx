@@ -7,6 +7,7 @@ interface NewProductModalProps {
     name: string;
     category: string;
     price: number;
+    costPrice: number;
     stock: number;
   }) => void;
 }
@@ -22,6 +23,7 @@ export function NewProductModal({
     name: "",
     category: "",
     price: "",
+    costPrice: "",
     stock: "",
   });
 
@@ -33,9 +35,16 @@ export function NewProductModal({
       name: formState.name,
       category: formState.category,
       price: Number(formState.price),
+      costPrice: Number(formState.costPrice),
       stock: Number(formState.stock),
     });
-    setFormState({ name: "", category: "", price: "", stock: "" });
+    setFormState({
+      name: "",
+      category: "",
+      price: "",
+      costPrice: "",
+      stock: "",
+    });
     onClose();
   };
 
@@ -101,7 +110,7 @@ export function NewProductModal({
           </label>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-light-primary dark:text-dark-primary">
-              Price ($)
+              Selling Price ($)
               <input
                 className="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-text-light-primary dark:text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 inputMode="decimal"
@@ -116,19 +125,34 @@ export function NewProductModal({
               />
             </label>
             <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-light-primary dark:text-dark-primary">
-              Initial Stock
+              Cost Price ($)
               <input
                 className="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-text-light-primary dark:text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                inputMode="decimal"
                 min="0"
-                name="stock"
+                name="costPrice"
                 onChange={handleChange}
-                placeholder="0"
+                placeholder="0.00"
                 required
+                step="0.01"
                 type="number"
-                value={formState.stock}
+                value={formState.costPrice}
               />
             </label>
           </div>
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-text-light-primary dark:text-dark-primary">
+            Initial Stock
+            <input
+              className="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2.5 text-text-light-primary dark:text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              min="0"
+              name="stock"
+              onChange={handleChange}
+              placeholder="0"
+              required
+              type="number"
+              value={formState.stock}
+            />
+          </label>
           <div className="flex gap-3 pt-2">
             <button
               type="button"

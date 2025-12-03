@@ -15,6 +15,15 @@ model User {
   hashedPassword String
   emailVerified  DateTime?
   image          String?
+  phone          String?
+  role           String    @default("User")
+  avatar         String?
+  
+  // Notification settings
+  orderAlerts      Boolean @default(true)
+  lowStockWarnings Boolean @default(true)
+  weeklyReports    Boolean @default(false)
+  
   accounts       Account[]
   sessions       Session[]
   resetTokens    PasswordResetToken[]
@@ -81,6 +90,7 @@ model Product {
   id         String        @id @default(cuid())
   name       String
   price      Float
+  costPrice  Float         @default(0)
   stock      Int           @default(0)
   status     ProductStatus @default(IN_STOCK)
   categoryId String
