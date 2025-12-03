@@ -13,9 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Stok Takip",
+  title: "Marisonia Stok Takip",
   description:
     "Secure stock tracking starter with Next.js, Prisma, and Supabase",
+  icons: {
+    icon: "/images/mari-logo.webp",
+    apple: "/images/mari-logo.webp",
+  },
 };
 
 export default function RootLayout({

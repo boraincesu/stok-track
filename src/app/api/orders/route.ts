@@ -19,6 +19,7 @@ export async function GET() {
           : o.status === "PENDING"
           ? "Pending"
           : "Canceled",
+      date: o.createdAt.toISOString(),
     }));
 
     return NextResponse.json(formatted);
