@@ -5,6 +5,7 @@ export type Order = {
   customer: string;
   amount: number;
   status: OrderStatus;
+  date: string;
 };
 
 export type ProductStatus = "In Stock" | "Low Stock" | "Out of Stock";
