@@ -9,15 +9,13 @@ export const dynamic = "force-dynamic";
 
 const signupSchema = z
   .object({
-    name: z.string().trim().min(2, "Name is too short"),
-    email: z.string().trim().email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z
-      .string()
-      .min(8, "Password must be at least 8 characters"),
+    name: z.string().trim().min(2, "İsim çok kısa"),
+    email: z.string().trim().email("Geçersiz e-posta adresi"),
+    password: z.string().min(8, "Şifre en az 8 karakter olmalıdır"),
+    confirmPassword: z.string().min(8, "Şifre en az 8 karakter olmalıdır"),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Şifreler eşleşmiyor",
     path: ["confirmPassword"],
   });
 
@@ -26,14 +24,28 @@ export async function POST(request: Request) {
     const payload = await request.json();
     const { name, email, password } = signupSchema.parse(payload);
 
+    // Check if email is verified
+    const verification = await prisma.emailVerification.findUnique({
+      where: { email },
+    });
+
+    if (!verification || !verification.verified) {
+      return NextResponse.json(
+        { message: "E-posta adresi doğrulanmamış. Lütfen önce doğrulama yapın." },
+        { status: 403 }
+      );
+    }
+
+    // Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json(
-        { message: "Email is already registered" },
+        { message: "Bu e-posta adresi zaten kayıtlı" },
         { status: 409 }
       );
     }
 
+    // Hash password and create user
     const hashedPassword = await bcrypt.hash(password, 12);
 
     await prisma.user.create({
@@ -41,21 +53,27 @@ export async function POST(request: Request) {
         name,
         email,
         hashedPassword,
+        emailVerified: new Date(), // Mark as verified since we used OTP
       },
     });
 
-    return NextResponse.json({ message: "Account created" }, { status: 201 });
+    // Delete verification record
+    await prisma.emailVerification.delete({
+      where: { email },
+    });
+
+    return NextResponse.json({ message: "Hesap oluşturuldu" }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { message: "Invalid input", errors: error.flatten().fieldErrors },
+        { message: "Geçersiz giriş", errors: error.flatten().fieldErrors },
         { status: 400 }
       );
     }
 
     console.error("Signup error", error);
     return NextResponse.json(
-      { message: "Something went wrong" },
+      { message: "Bir hata oluştu" },
       { status: 500 }
     );
   }
