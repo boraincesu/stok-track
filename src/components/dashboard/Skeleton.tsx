@@ -31,6 +31,10 @@ export function StatsCardSkeleton() {
   );
 }
 
+// Fixed heights to prevent hydration mismatch (server/client values must match)
+const CHART_BAR_HEIGHTS = [65, 80, 55, 90, 70, 85, 60];
+const REPORT_BAR_HEIGHTS = [75, 85, 60, 95, 70, 80];
+
 export function ChartSkeleton() {
   return (
     <div className="col-span-2 rounded-2xl border border-border-light bg-card-light p-6 shadow-sm">
@@ -39,11 +43,11 @@ export function ChartSkeleton() {
         <Skeleton className="h-8 w-24 rounded-lg" />
       </div>
       <div className="h-[300px] flex items-end gap-2 pt-8">
-        {Array.from({ length: 7 }).map((_, i) => (
+        {CHART_BAR_HEIGHTS.map((height, i) => (
           <div key={i} className="flex-1 flex flex-col items-center gap-2">
             <Skeleton
               className="w-full rounded-t-md"
-              style={{ height: `${Math.random() * 60 + 40}%` }}
+              style={{ height: `${height}%` }}
             />
             <Skeleton className="h-3 w-8" />
           </div>
@@ -204,11 +208,11 @@ export function ReportsPageSkeleton() {
         <div className="h-[400px] rounded-2xl border border-border-light bg-card-light p-6 shadow-sm">
           <Skeleton className="h-6 w-32 mb-4" />
           <div className="h-[320px] flex items-end gap-2">
-            {Array.from({ length: 6 }).map((_, i) => (
+            {REPORT_BAR_HEIGHTS.map((height, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-2">
                 <Skeleton
                   className="w-full rounded-t-md"
-                  style={{ height: `${Math.random() * 60 + 40}%` }}
+                  style={{ height: `${height}%` }}
                 />
                 <Skeleton className="h-3 w-8" />
               </div>

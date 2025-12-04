@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { signOut, useSession } from "next-auth/react";
 
 const MENU = [
   { id: "dashboard", icon: "dashboard", label: "Dashboard" },
@@ -18,6 +19,20 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+  const { data: session } = useSession();
+  
+  const userName = session?.user?.name || "Kullanıcı";
+  const userEmail = session?.user?.email || "";
+  const userImage = session?.user?.image;
+  
+  // Generate initials for avatar fallback
+  const initials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
     <aside className="hidden w-64 flex-col bg-card-light p-4 border-r border-border-light md:flex sticky top-0 h-screen overflow-y-auto">
       <div className="flex items-center gap-3 px-2 mb-8">
@@ -69,25 +84,29 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       </div>
 
       <div className="flex items-center gap-3 p-2 rounded-lg mt-auto">
-        <div
-          className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-          style={{
-            backgroundImage:
-              'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDixNPxZBM9TSEvle9bG-MoRO5JB9PdhGZSMDWd6XVTFJ-Hu0ZagOYBHxi4FkIiTzdskVdn-NT_K4f1G48LIbuqs15zUkbFgj0sk7V1iub0Hv1SQpx94E32gtPaPF59yTZBoRdRHPhgYeDq6Te4P41Ekdm0V7vrtHAm8UR-zgpBnuJkPj8VB0cE73sy6zZ646vg8jDrV5tPnvlfuXLVYFLjEdFx70D-0Ubqoy0eqWFuzd1WPER0cKx-KHV7_kX-gFbaEexcIp0lluc")',
-          }}
-        ></div>
+        {userImage ? (
+          <div
+            className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+            style={{ backgroundImage: `url("${userImage}")` }}
+          />
+        ) : (
+          <div className="flex items-center justify-center size-10 rounded-full bg-primary/20 text-primary font-semibold text-sm">
+            {initials}
+          </div>
+        )}
         <div className="flex flex-col overflow-hidden">
           <h1 className="text-text-light-primary text-sm font-medium leading-normal truncate">
-            Olivia Rhye
+            {userName}
           </h1>
           <p className="text-text-light-secondary text-xs font-normal leading-normal truncate">
-            olivia@example.com
+            {userEmail}
           </p>
         </div>
         <button
           type="button"
           className="ml-auto p-1 hover:bg-gray-100 rounded"
           aria-label="Log out"
+          onClick={() => signOut({ callbackUrl: "/login" })}
         >
           <span className="material-symbols-outlined text-text-light-secondary text-[20px]">
             logout

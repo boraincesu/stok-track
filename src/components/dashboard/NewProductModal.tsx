@@ -52,7 +52,9 @@ export function NewProductModal({
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = event.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
+    // Convert product name to uppercase
+    const processedValue = name === "name" ? value.toUpperCase() : value;
+    setFormState((prev) => ({ ...prev, [name]: processedValue }));
   };
 
   return (

@@ -159,3 +159,12 @@ enum OrderStatus {
   COMPLETED
   CANCELED
 }
+
+model EmailVerification {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  otp       String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
