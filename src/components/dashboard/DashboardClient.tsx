@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 import { Header } from "@/components/dashboard/Header";
 import { NewProductModal } from "@/components/dashboard/NewProductModal";
@@ -98,7 +99,18 @@ export function DashboardClient() {
   };
 
   const handleDeleteProduct = async (productId: string) => {
-    if (!confirm("Bu ürünü silmek istediğinizden emin misiniz?")) return;
+    const result = await Swal.fire({
+      title: "Ürünü Sil",
+      text: "Bu ürünü silmek istediğinizden emin misiniz?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Evet, Sil",
+      cancelButtonText: "İptal",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const response = await fetch(`/api/products/${productId}`, {
@@ -107,12 +119,27 @@ export function DashboardClient() {
 
       if (response.ok) {
         setProducts((prev) => prev.filter((p) => p.id !== productId));
+        Swal.fire({
+          title: "Silindi!",
+          text: "Ürün başarıyla silindi.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
       } else {
-        alert("Ürün silinirken bir hata oluştu");
+        Swal.fire({
+          title: "Hata!",
+          text: "Ürün silinirken bir hata oluştu.",
+          icon: "error",
+        });
       }
     } catch (error) {
       console.error("Failed to delete product:", error);
-      alert("Sunucuya bağlanılamadı");
+      Swal.fire({
+        title: "Bağlantı Hatası",
+        text: "Sunucuya bağlanılamadı.",
+        icon: "error",
+      });
     }
   };
 
@@ -132,16 +159,44 @@ export function DashboardClient() {
         setProducts((prev) =>
           prev.map((p) => (p.id === productId ? updatedProduct : p))
         );
+        Swal.fire({
+          title: "Güncellendi!",
+          text: "Ürün başarıyla güncellendi.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
       } else {
-        alert("Ürün güncellenirken bir hata oluştu");
+        Swal.fire({
+          title: "Hata!",
+          text: "Ürün güncellenirken bir hata oluştu.",
+          icon: "error",
+        });
       }
     } catch (error) {
       console.error("Failed to update product:", error);
-      alert("Sunucuya bağlanılamadı");
+      Swal.fire({
+        title: "Bağlantı Hatası",
+        text: "Sunucuya bağlanılamadı.",
+        icon: "error",
+      });
     }
   };
 
   const handleDeleteAllProducts = async () => {
+    const result = await Swal.fire({
+      title: "Tüm Ürünleri Sil",
+      text: `${products.length} ürünün tamamını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Evet, Tümünü Sil",
+      cancelButtonText: "İptal",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       const response = await fetch("/api/products", {
         method: "DELETE",
@@ -149,12 +204,27 @@ export function DashboardClient() {
 
       if (response.ok) {
         setProducts([]);
+        Swal.fire({
+          title: "Silindi!",
+          text: "Tüm ürünler başarıyla silindi.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
       } else {
-        alert("Ürünler silinirken bir hata oluştu");
+        Swal.fire({
+          title: "Hata!",
+          text: "Ürünler silinirken bir hata oluştu.",
+          icon: "error",
+        });
       }
     } catch (error) {
       console.error("Failed to delete all products:", error);
-      alert("Sunucuya bağlanılamadı");
+      Swal.fire({
+        title: "Bağlantı Hatası",
+        text: "Sunucuya bağlanılamadı.",
+        icon: "error",
+      });
     }
   };
 
@@ -182,14 +252,29 @@ export function DashboardClient() {
       if (response.ok) {
         const newProduct = await response.json();
         setProducts((previous) => [newProduct, ...previous]);
+        Swal.fire({
+          title: "Eklendi!",
+          text: "Ürün başarıyla eklendi.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error("Failed to create product:", errorData);
-        alert("Ürün eklenirken bir hata oluştu");
+        Swal.fire({
+          title: "Hata!",
+          text: "Ürün eklenirken bir hata oluştu.",
+          icon: "error",
+        });
       }
     } catch (error) {
       console.error("Failed to create product:", error);
-      alert("Sunucuya bağlanılamadı. Lütfen tekrar deneyin.");
+      Swal.fire({
+        title: "Bağlantı Hatası",
+        text: "Sunucuya bağlanılamadı. Lütfen tekrar deneyin.",
+        icon: "error",
+      });
     }
   };
 

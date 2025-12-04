@@ -13,10 +13,17 @@ export type ProductStatus = "In Stock" | "Low Stock" | "Out of Stock";
 export type Product = {
   id: string;
   name: string;
+  sku?: string | null;
+  barcode?: string | null;
   category: string;
   price: number;
   costPrice: number;
   stock: number;
+  minStock?: number;
+  unit?: string;
+  supplier?: string | null;
+  description?: string | null;
+  location?: string | null;
   status: ProductStatus;
 };
 

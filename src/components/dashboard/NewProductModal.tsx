@@ -214,7 +214,7 @@ export function NewProductModal({
             
             <div className="grid gap-4 sm:grid-cols-2">
               <label className={labelClass}>
-                Satış Fiyatı (₺) *
+                Satış Fiyatı ($)
                 <input
                   className={inputClass}
                   inputMode="decimal"
@@ -222,14 +222,13 @@ export function NewProductModal({
                   name="price"
                   onChange={handleChange}
                   placeholder="0.00"
-                  required
                   step="0.01"
                   type="number"
                   value={formState.price}
                 />
               </label>
               <label className={labelClass}>
-                Alış Fiyatı (₺) *
+                Alış Fiyatı ($) *
                 <input
                   className={inputClass}
                   inputMode="decimal"

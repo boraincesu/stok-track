@@ -3,6 +3,7 @@
 import { useMemo, useState, useCallback } from "react";
 
 import type { Product } from "@/types/dashboard";
+import { ProductDetailModal } from "./ProductDetailModal";
 
 interface ProductsPageProps {
   products: Product[];
@@ -37,6 +38,7 @@ export function ProductsPage({
   const [showFilters, setShowFilters] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [filters, setFilters] = useState({
     category: "",
     status: "" as Product["status"] | "",
@@ -229,8 +231,8 @@ export function ProductsPage({
           <div class="summary">
             <p>Total Products: ${filteredProducts.length}</p>
             <p>Total Stock Value: $${filteredProducts
-              .reduce((sum, p) => sum + p.price * p.stock, 0)
-              .toLocaleString()}</p>
+              .reduce((sum, p) => sum + p.costPrice * p.stock, 0)
+              .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
         </body>
       </html>
@@ -573,9 +575,13 @@ export function ProductsPage({
                   className="border-b border-border-light hover:bg-background-light transition-colors last:border-0"
                 >
                   <td className="p-4">
-                    <p className="font-medium text-text-light-primary">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedProduct(product)}
+                      className="font-medium text-text-light-primary hover:text-primary hover:underline transition-colors text-left"
+                    >
                       {product.name}
-                    </p>
+                    </button>
                     <p className="text-xs text-text-light-secondary md:hidden">
                       {product.category}
                     </p>
@@ -650,8 +656,8 @@ export function ProductsPage({
                       <div className="flex gap-2 justify-end">
                         <button
                           onClick={handleSaveEdit}
-                          className="text-green-600 hover:text-green-700 transition-colors"
-                          title="Save"
+                          className="text-green-600 hover:text-green-700 transition-colors p-1 rounded hover:bg-green-50"
+                          title="Kaydet"
                         >
                           <span className="material-symbols-outlined text-[20px]">
                             check
@@ -659,8 +665,8 @@ export function ProductsPage({
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          className="text-red-600 hover:text-red-700 transition-colors"
-                          title="Cancel"
+                          className="text-red-600 hover:text-red-700 transition-colors p-1 rounded hover:bg-red-50"
+                          title="İptal"
                         >
                           <span className="material-symbols-outlined text-[20px]">
                             close
@@ -668,59 +674,34 @@ export function ProductsPage({
                         </button>
                       </div>
                     ) : (
-                      <div className="relative inline-block">
+                      <div className="flex gap-1 justify-end">
                         <button
-                          onClick={() =>
-                            setMenuOpenId(
-                              menuOpenId === product.id ? null : product.id
-                            )
-                          }
-                          className="text-text-light-secondary hover:text-primary transition-colors"
+                          onClick={() => setSelectedProduct(product)}
+                          className="text-text-light-secondary hover:text-primary transition-colors p-1.5 rounded hover:bg-primary/10"
+                          title="Detay Görüntüle"
                         >
-                          <span className="material-symbols-outlined text-[20px]">
-                            more_vert
+                          <span className="material-symbols-outlined text-[18px]">
+                            visibility
                           </span>
                         </button>
-                        {menuOpenId === product.id && (
-                          <>
-                            {/* Backdrop to close menu */}
-                            <div
-                              className="fixed inset-0 z-40"
-                              onClick={() => setMenuOpenId(null)}
-                            />
-                            <div
-                              className={`absolute right-0 z-50 bg-white border border-border-light rounded-lg shadow-lg py-1 min-w-[120px] ${
-                                // Son 3 ürün için menüyü yukarı aç
-                                filteredProducts.indexOf(product) >=
-                                filteredProducts.length - 3
-                                  ? "bottom-full mb-1"
-                                  : "top-full mt-1"
-                              }`}
-                            >
-                              <button
-                                onClick={() => handleStartEdit(product)}
-                                className="w-full px-4 py-2 text-left text-sm text-text-light-primary hover:bg-background-light flex items-center gap-2"
-                              >
-                                <span className="material-symbols-outlined text-[18px]">
-                                  edit
-                                </span>
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setMenuOpenId(null);
-                                  onDelete?.(product.id);
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                              >
-                                <span className="material-symbols-outlined text-[18px]">
-                                  delete
-                                </span>
-                                Delete
-                              </button>
-                            </div>
-                          </>
-                        )}
+                        <button
+                          onClick={() => handleStartEdit(product)}
+                          className="text-text-light-secondary hover:text-blue-600 transition-colors p-1.5 rounded hover:bg-blue-50"
+                          title="Düzenle"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">
+                            edit
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => onDelete?.(product.id)}
+                          className="text-text-light-secondary hover:text-red-600 transition-colors p-1.5 rounded hover:bg-red-50"
+                          title="Sil"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">
+                            delete
+                          </span>
+                        </button>
                       </div>
                     )}
                   </td>
@@ -753,10 +734,24 @@ export function ProductsPage({
           <span>
             Total Stock Value: $
             {filteredProducts
-              .reduce((sum, p) => sum + p.price * p.stock, 0)
-              .toLocaleString()}
+              .reduce((sum, p) => sum + p.costPrice * p.stock, 0)
+              .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </div>
+      )}
+
+      {/* Product Detail Modal */}
+      {selectedProduct && (
+        <ProductDetailModal
+          product={selectedProduct}
+          isOpen={!!selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onUpdate={(productId, updates) => {
+            onUpdate?.(productId, updates);
+            // Update local selected product state to reflect changes
+            setSelectedProduct((prev) => prev ? { ...prev, ...updates } : null);
+          }}
+        />
       )}
     </div>
   );
