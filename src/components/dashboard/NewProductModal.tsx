@@ -53,6 +53,7 @@ export function NewProductModal({
     description: "",
     location: "",
   });
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
 
   if (!isOpen) return null;
 
@@ -306,8 +307,8 @@ export function NewProductModal({
               />
             </label>
 
-            <label className={labelClass}>
-              Açıklama
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-semibold text-text-light-primary dark:text-dark-primary">Açıklama</span>
               <textarea
                 className={`${inputClass} resize-none`}
                 name="description"
@@ -316,7 +317,42 @@ export function NewProductModal({
                 onChange={handleChange}
                 rows={3}
               />
-            </label>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!formState.name) {
+                    alert("Önce ürün adını girin");
+                    return;
+                  }
+                  setIsGeneratingDescription(true);
+                  try {
+                    const res = await fetch("/api/ai/generate-description", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        name: formState.name,
+                        category: formState.category || "Genel",
+                      }),
+                    });
+                    const data = await res.json();
+                    if (data.description) {
+                      setFormState((prev) => ({ ...prev, description: data.description }));
+                    }
+                  } catch (error) {
+                    console.error("AI error:", error);
+                  } finally {
+                    setIsGeneratingDescription(false);
+                  }
+                }}
+                disabled={isGeneratingDescription || !formState.name}
+                className="self-start flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  {isGeneratingDescription ? "hourglass_empty" : "auto_awesome"}
+                </span>
+                {isGeneratingDescription ? "Oluşturuluyor..." : "AI ile Oluştur"}
+              </button>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4 border-t border-border-light dark:border-border-dark mt-2">

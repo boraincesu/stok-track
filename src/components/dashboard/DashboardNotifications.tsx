@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { NotificationSettings } from "@/types/settings";
 import type { Order, Product } from "@/types/dashboard";
 
@@ -7,7 +8,6 @@ interface DashboardNotificationsProps {
   orders: Order[];
   products: Product[];
   settings: NotificationSettings;
-  onDismiss?: (id: string) => void;
 }
 
 interface Notification {
@@ -25,6 +25,17 @@ export function DashboardNotifications({
   products,
   settings,
 }: DashboardNotificationsProps) {
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+
+  const handleDismiss = (id: string) => {
+    setDismissedIds((prev) => new Set([...prev, id]));
+  };
+
+  const handleClearAll = () => {
+    const allIds = notifications.map((n) => n.id);
+    setDismissedIds(new Set(allIds));
+  };
+
   const notifications: Notification[] = [];
 
   // Order Alerts - son 24 saatteki yeni siparişler
@@ -100,7 +111,12 @@ export function DashboardNotifications({
     }
   }
 
-  if (notifications.length === 0) {
+  // Filter out dismissed notifications
+  const visibleNotifications = notifications.filter(
+    (n) => !dismissedIds.has(n.id)
+  );
+
+  if (visibleNotifications.length === 0) {
     return null;
   }
 
@@ -113,15 +129,28 @@ export function DashboardNotifications({
           </span>
           Notifications
         </h3>
-        <span className="text-xs font-medium text-white bg-primary rounded-full px-2 py-0.5">
-          {notifications.length}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-white bg-primary rounded-full px-2 py-0.5">
+            {visibleNotifications.length}
+          </span>
+          {visibleNotifications.length > 1 && (
+            <button
+              onClick={handleClearAll}
+              className="text-xs text-text-light-secondary hover:text-red-600 transition-colors"
+              title="Tümünü Temizle"
+            >
+              <span className="material-symbols-outlined text-[16px]">
+                delete_sweep
+              </span>
+            </button>
+          )}
+        </div>
       </div>
       <div className="space-y-3">
-        {notifications.map((notification) => (
+        {visibleNotifications.map((notification) => (
           <div
             key={notification.id}
-            className="flex items-start gap-3 p-3 rounded-xl bg-background-light hover:bg-gray-100 transition-colors"
+            className="flex items-start gap-3 p-3 rounded-xl bg-background-light hover:bg-gray-100 transition-colors group"
           >
             <div className={`p-2 rounded-lg ${notification.color}`}>
               <span className="material-symbols-outlined text-[18px]">
@@ -136,9 +165,20 @@ export function DashboardNotifications({
                 {notification.message}
               </p>
             </div>
-            <span className="text-xs text-text-light-secondary whitespace-nowrap">
-              {notification.time}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-text-light-secondary whitespace-nowrap">
+                {notification.time}
+              </span>
+              <button
+                onClick={() => handleDismiss(notification.id)}
+                className="opacity-0 group-hover:opacity-100 text-text-light-secondary hover:text-red-600 transition-all p-1 rounded hover:bg-red-50"
+                title="Kaldır"
+              >
+                <span className="material-symbols-outlined text-[16px]">
+                  close
+                </span>
+              </button>
+            </div>
           </div>
         ))}
       </div>
