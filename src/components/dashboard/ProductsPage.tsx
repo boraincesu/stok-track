@@ -11,6 +11,7 @@ interface ProductsPageProps {
   onDelete?: (productId: string) => void;
   onUpdate?: (productId: string, updates: Partial<Product>) => void;
   onDeleteAll?: () => void;
+  onBulkImport?: () => void;
 }
 
 const STATUS_STYLES: Record<Product["status"], string> = {
@@ -31,6 +32,7 @@ export function ProductsPage({
   onDelete,
   onUpdate,
   onDeleteAll,
+  onBulkImport,
 }: ProductsPageProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
@@ -340,6 +342,19 @@ export function ProductsPage({
               </div>
             )}
           </div>
+
+          {/* Import Button */}
+          {onBulkImport && (
+            <button
+              onClick={onBulkImport}
+              className="px-4 py-2 text-sm font-medium text-text-light-secondary border border-border-light rounded-lg hover:bg-background-light transition-colors flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                upload_file
+              </span>
+              Import
+            </button>
+          )}
 
           {/* Filters Button */}
           <button

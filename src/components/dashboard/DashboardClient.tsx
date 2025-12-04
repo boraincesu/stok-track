@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 
 import { Header } from "@/components/dashboard/Header";
 import { NewProductModal } from "@/components/dashboard/NewProductModal";
+import { BulkImportModal } from "@/components/dashboard/BulkImportModal";
 import { OrdersPage } from "@/components/dashboard/OrdersPage";
 import { ProductsPage } from "@/components/dashboard/ProductsPage";
 import { RecentOrders } from "@/components/dashboard/RecentOrders";
@@ -48,6 +49,7 @@ export function DashboardClient() {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [notificationSettings, setNotificationSettings] =
     useState<NotificationSettings>({
@@ -390,6 +392,7 @@ export function DashboardClient() {
             onDelete={handleDeleteProduct}
             onUpdate={handleUpdateProduct}
             onDeleteAll={handleDeleteAllProducts}
+            onBulkImport={() => setIsBulkImportOpen(true)}
           />
         );
       case "orders":
@@ -442,6 +445,11 @@ export function DashboardClient() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreateProduct}
+      />
+      <BulkImportModal
+        isOpen={isBulkImportOpen}
+        onClose={() => setIsBulkImportOpen(false)}
+        onSuccess={fetchData}
       />
     </div>
   );
