@@ -160,10 +160,17 @@ export function DashboardClient() {
 
   const handleCreateProduct = async (payload: {
     name: string;
+    sku?: string;
+    barcode?: string;
     category: string;
     price: number;
     costPrice: number;
     stock: number;
+    minStock: number;
+    unit: string;
+    supplier?: string;
+    description?: string;
+    location?: string;
   }) => {
     try {
       const response = await fetch("/api/products", {

@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ProductStatus } from "@prisma/client";
 
-function deriveStatus(stock: number): ProductStatus {
+function deriveStatus(stock: number, minStock: number = 0): ProductStatus {
   if (stock <= 0) return "OUT_OF_STOCK";
-  if (stock < 15) return "LOW_STOCK";
+  if (stock <= minStock || stock < 15) return "LOW_STOCK";
   return "IN_STOCK";
 }
 
@@ -19,10 +19,17 @@ export async function GET() {
     const formatted = products.map((p) => ({
       id: p.id,
       name: p.name,
+      sku: p.sku,
+      barcode: p.barcode,
       category: p.category.name,
       price: p.price,
       costPrice: p.costPrice,
       stock: p.stock,
+      minStock: p.minStock,
+      unit: p.unit,
+      supplier: p.supplier,
+      description: p.description,
+      location: p.location,
       status:
         p.status === "IN_STOCK"
           ? "In Stock"
@@ -45,7 +52,20 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, category, price, costPrice, stock } = body;
+    const { 
+      name, 
+      sku, 
+      barcode, 
+      category, 
+      price, 
+      costPrice, 
+      stock, 
+      minStock,
+      unit,
+      supplier,
+      description,
+      location 
+    } = body;
 
     if (!name || !category || price === undefined || stock === undefined) {
       return NextResponse.json(
@@ -65,13 +85,23 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const stockNum = Number(stock);
+    const minStockNum = Number(minStock) || 0;
+
     const product = await prisma.product.create({
       data: {
         name: name.toUpperCase(),
+        sku: sku || null,
+        barcode: barcode || null,
         price: Number(price),
         costPrice: Number(costPrice || 0),
-        stock: Number(stock),
-        status: deriveStatus(Number(stock)),
+        stock: stockNum,
+        minStock: minStockNum,
+        unit: unit || "adet",
+        supplier: supplier || null,
+        description: description || null,
+        location: location || null,
+        status: deriveStatus(stockNum, minStockNum),
         categoryId: categoryRecord.id,
       },
       include: { category: true },
@@ -80,10 +110,17 @@ export async function POST(request: NextRequest) {
     const formatted = {
       id: product.id,
       name: product.name,
+      sku: product.sku,
+      barcode: product.barcode,
       category: product.category.name,
       price: product.price,
       costPrice: product.costPrice,
       stock: product.stock,
+      minStock: product.minStock,
+      unit: product.unit,
+      supplier: product.supplier,
+      description: product.description,
+      location: product.location,
       status:
         product.status === "IN_STOCK"
           ? "In Stock"
