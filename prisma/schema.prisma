@@ -87,19 +87,28 @@ model Category {
 }
 
 model Product {
-  id         String        @id @default(cuid())
-  name       String
-  price      Float
-  costPrice  Float         @default(0)
-  stock      Int           @default(0)
-  status     ProductStatus @default(IN_STOCK)
-  categoryId String
-  category   Category      @relation(fields: [categoryId], references: [id])
-  orderItems OrderItem[]
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  id          String        @id @default(cuid())
+  name        String
+  sku         String?       @unique
+  barcode     String?
+  price       Float
+  costPrice   Float         @default(0)
+  stock       Int           @default(0)
+  minStock    Int           @default(0)
+  unit        String        @default("adet")
+  supplier    String?
+  description String?
+  location    String?
+  status      ProductStatus @default(IN_STOCK)
+  categoryId  String
+  category    Category      @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   @@index([categoryId])
+  @@index([sku])
+  @@index([barcode])
 }
 
 model Order {
