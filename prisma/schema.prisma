@@ -24,15 +24,6 @@ model User {
   lowStockWarnings Boolean @default(true)
   weeklyReports    Boolean @default(false)
   
-  phone          String?
-  role           String    @default("User")
-  avatar         String?
-  
-  // Notification settings
-  orderAlerts      Boolean @default(true)
-  lowStockWarnings Boolean @default(true)
-  weeklyReports    Boolean @default(false)
-  
   accounts       Account[]
   sessions       Session[]
   resetTokens    PasswordResetToken[]
@@ -176,16 +167,6 @@ enum OrderStatus {
   PENDING
   COMPLETED
   CANCELED
-}
-
-model EmailVerification {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  otp       String
-  expiresAt DateTime
-  verified  Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
 }
 
 model EmailVerification {
