@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // 🔧 BAKIM MODU - true yaparak bakım modunu aktifleştirin
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 export function middleware(request: NextRequest) {
   // Bakım modu kapalıysa normal devam et
