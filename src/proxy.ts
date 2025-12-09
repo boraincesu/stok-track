@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 // 🔧 BAKIM MODU - true yaparak bakım modunu aktifleştirin
 const MAINTENANCE_MODE = false;
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Bakım modu kapalıysa normal devam et
   if (!MAINTENANCE_MODE) {
     return NextResponse.next();

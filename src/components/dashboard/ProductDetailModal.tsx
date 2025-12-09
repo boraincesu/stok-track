@@ -2,7 +2,6 @@
 
 import { useState, type ChangeEvent } from "react";
 import type { Product } from "@/types/dashboard";
-import { SupplierEmailModal } from "./SupplierEmailModal";
 
 interface ProductDetailModalProps {
   product: Product;
@@ -25,7 +24,6 @@ export function ProductDetailModal({
 }: ProductDetailModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
-  const [showEmailModal, setShowEmailModal] = useState(false);
 
   if (!isOpen) return null;
 
@@ -64,19 +62,20 @@ export function ProductDetailModal({
   ) => {
     const { name, value, type } = e.target;
     let processedValue: string | number = value;
-    
+
     if (name === "name") {
       processedValue = value.toUpperCase();
     } else if (type === "number") {
       processedValue = Number(value);
     }
-    
+
     setEditForm((prev) => ({ ...prev, [name]: processedValue }));
   };
 
-  const profitMargin = product.costPrice > 0
-    ? ((product.price - product.costPrice) / product.costPrice) * 100
-    : 0;
+  const profitMargin =
+    product.costPrice > 0
+      ? ((product.price - product.costPrice) / product.costPrice) * 100
+      : 0;
 
   const inputClass =
     "w-full px-3 py-2 border border-border-light rounded-lg text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-background-light";
@@ -213,8 +212,13 @@ export function ProductDetailModal({
                   <p className="text-xs font-medium text-text-light-secondary uppercase tracking-wider mb-1">
                     Kar Marjı
                   </p>
-                  <p className={`text-xl font-bold ${profitMargin > 0 ? "text-green-600" : "text-red-600"}`}>
-                    {profitMargin > 0 ? "+" : ""}{profitMargin.toFixed(1)}%
+                  <p
+                    className={`text-xl font-bold ${
+                      profitMargin > 0 ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {profitMargin > 0 ? "+" : ""}
+                    {profitMargin.toFixed(1)}%
                   </p>
                 </div>
               </div>
@@ -241,7 +245,10 @@ export function ProductDetailModal({
                     />
                   ) : (
                     <p className="text-xl font-bold text-text-light-primary">
-                      {product.stock} <span className="text-sm font-normal text-text-light-secondary">{product.unit || "adet"}</span>
+                      {product.stock}{" "}
+                      <span className="text-sm font-normal text-text-light-secondary">
+                        {product.unit || "adet"}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -360,21 +367,15 @@ export function ProductDetailModal({
                 >
                   Kapat
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setShowEmailModal(true)}
-                  className="flex-1 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10 flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-[18px]">mail</span>
-                  Sipariş E-postası
-                </button>
                 {onUpdate && (
                   <button
                     type="button"
                     onClick={handleStartEdit}
                     className="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 flex items-center justify-center gap-2"
                   >
-                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                    <span className="material-symbols-outlined text-[18px]">
+                      edit
+                    </span>
                     Düzenle
                   </button>
                 )}
@@ -383,13 +384,6 @@ export function ProductDetailModal({
           </footer>
         </div>
       </div>
-
-      {/* Supplier Email Modal */}
-      <SupplierEmailModal
-        product={product}
-        isOpen={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
-      />
     </>
   );
 }

@@ -207,7 +207,7 @@ export function ReportsPageSkeleton() {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="h-[400px] rounded-2xl border border-border-light bg-card-light p-6 shadow-sm">
           <Skeleton className="h-6 w-32 mb-4" />
-          <div className="h-[320px] flex items-end gap-2">
+          <div className="h-80 flex items-end gap-2">
             {REPORT_BAR_HEIGHTS.map((height, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-2">
                 <Skeleton
