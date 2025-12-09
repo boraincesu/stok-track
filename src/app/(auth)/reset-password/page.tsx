@@ -71,7 +71,7 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#e8f0ff,_#f7f9fc)] px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,#e8f0ff,#f7f9fc)] px-4 py-12">
       <div className="w-full max-w-md space-y-6 rounded-3xl border border-slate-200 bg-white/95 p-8 text-slate-900 shadow-[0_25px_80px_rgba(15,23,42,0.08)]">
         <div className="space-y-1 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
@@ -140,7 +140,7 @@ function ResetPasswordForm() {
           ) : null}
 
           <button
-            className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+            className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
             disabled={isSubmitting}
             type="submit"
           >
@@ -166,7 +166,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#e8f0ff,_#f7f9fc)]">
+        <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,#e8f0ff,#f7f9fc)]">
           <div className="animate-pulse text-slate-500">Loading...</div>
         </div>
       }

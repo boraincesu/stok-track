@@ -14,7 +14,6 @@ import {
 } from "recharts";
 
 import type { Order, Product } from "@/types/dashboard";
-import { AIReportSummary } from "./AIReportSummary";
 
 interface ReportsPageProps {
   orders: Order[];
@@ -102,9 +101,6 @@ export function ReportsPage({ orders, products }: ReportsPageProps) {
           Get a quick pulse on revenue growth and category performance.
         </p>
       </header>
-
-      {/* AI Report Summary */}
-      <AIReportSummary products={products} orders={orders} />
 
       <div className="grid gap-4 md:grid-cols-3">
         {reportCards.map((card) => (

@@ -53,7 +53,6 @@ export function NewProductModal({
     description: "",
     location: "",
   });
-  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
 
   if (!isOpen) return null;
 
@@ -91,7 +90,9 @@ export function NewProductModal({
   };
 
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    event: ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = event.target;
     // Convert product name to uppercase
@@ -126,12 +127,17 @@ export function NewProductModal({
             <span className="material-symbols-outlined">close</span>
           </button>
         </header>
-        
-        <form className="p-6 flex flex-col gap-4 overflow-y-auto" onSubmit={handleSubmit}>
+
+        <form
+          className="p-6 flex flex-col gap-4 overflow-y-auto"
+          onSubmit={handleSubmit}
+        >
           {/* Temel Bilgiler */}
           <div className="space-y-4">
-            <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Temel Bilgiler</h3>
-            
+            <h3 className="text-sm font-bold text-primary uppercase tracking-wider">
+              Temel Bilgiler
+            </h3>
+
             <label className={labelClass}>
               Ürün Adı *
               <input
@@ -211,8 +217,10 @@ export function NewProductModal({
 
           {/* Fiyatlandırma */}
           <div className="space-y-4 pt-2">
-            <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Fiyatlandırma</h3>
-            
+            <h3 className="text-sm font-bold text-primary uppercase tracking-wider">
+              Fiyatlandırma
+            </h3>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <label className={labelClass}>
                 Satış Fiyatı ($)
@@ -248,8 +256,10 @@ export function NewProductModal({
 
           {/* Stok Bilgileri */}
           <div className="space-y-4 pt-2">
-            <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Stok Bilgileri</h3>
-            
+            <h3 className="text-sm font-bold text-primary uppercase tracking-wider">
+              Stok Bilgileri
+            </h3>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <label className={labelClass}>
                 Başlangıç Stoku *
@@ -293,8 +303,10 @@ export function NewProductModal({
 
           {/* Ek Bilgiler */}
           <div className="space-y-4 pt-2">
-            <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Ek Bilgiler</h3>
-            
+            <h3 className="text-sm font-bold text-primary uppercase tracking-wider">
+              Ek Bilgiler
+            </h3>
+
             <label className={labelClass}>
               Tedarikçi
               <input
@@ -308,7 +320,9 @@ export function NewProductModal({
             </label>
 
             <div className="flex flex-col gap-1.5">
-              <span className="text-sm font-semibold text-text-light-primary dark:text-dark-primary">Açıklama</span>
+              <span className="text-sm font-semibold text-text-light-primary dark:text-dark-primary">
+                Açıklama
+              </span>
               <textarea
                 className={`${inputClass} resize-none`}
                 name="description"
@@ -317,41 +331,6 @@ export function NewProductModal({
                 onChange={handleChange}
                 rows={3}
               />
-              <button
-                type="button"
-                onClick={async () => {
-                  if (!formState.name) {
-                    alert("Önce ürün adını girin");
-                    return;
-                  }
-                  setIsGeneratingDescription(true);
-                  try {
-                    const res = await fetch("/api/ai/generate-description", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        name: formState.name,
-                        category: formState.category || "Genel",
-                      }),
-                    });
-                    const data = await res.json();
-                    if (data.description) {
-                      setFormState((prev) => ({ ...prev, description: data.description }));
-                    }
-                  } catch (error) {
-                    console.error("AI error:", error);
-                  } finally {
-                    setIsGeneratingDescription(false);
-                  }
-                }}
-                disabled={isGeneratingDescription || !formState.name}
-                className="self-start flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px]">
-                  {isGeneratingDescription ? "hourglass_empty" : "auto_awesome"}
-                </span>
-                {isGeneratingDescription ? "Oluşturuluyor..." : "AI ile Oluştur"}
-              </button>
             </div>
           </div>
 

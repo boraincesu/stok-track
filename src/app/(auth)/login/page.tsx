@@ -68,7 +68,7 @@ function LoginForm() {
           <div className="absolute inset-0" aria-hidden>
             <div className="h-full w-full" style={backgroundStyle} />
           </div>
-          <div className="relative z-10 flex h-full w-full flex-col justify-between bg-gradient-to-r from-slate-950/80 via-slate-900/70 to-slate-900/20 px-10 py-12 text-white">
+          <div className="relative z-10 flex h-full w-full flex-col justify-between bg-linear-to-r from-slate-950/80 via-slate-900/70 to-slate-900/20 px-10 py-12 text-white">
             <div className="flex items-center gap-3 text-white">
               <img
                 src="/images/mari-logo.webp"
@@ -164,7 +164,7 @@ function LoginForm() {
               </div>
 
               <button
-                className="flex h-14 w-full items-center justify-center rounded-2xl bg-blue-600 text-base font-semibold text-white transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+                className="flex h-14 w-full items-center justify-center rounded-2xl bg-blue-600 text-base font-semibold text-white transition hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
                 disabled={isSubmitting}
                 type="submit"
               >

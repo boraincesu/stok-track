@@ -234,7 +234,10 @@ export function ProductsPage({
             <p>Total Products: ${filteredProducts.length}</p>
             <p>Total Stock Value: $${filteredProducts
               .reduce((sum, p) => sum + p.costPrice * p.stock, 0)
-              .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+              .toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}</p>
           </div>
         </body>
       </html>
@@ -311,7 +314,7 @@ export function ProductsPage({
               Export
             </button>
             {showExportMenu && (
-              <div className="absolute right-0 top-full mt-1 z-50 bg-white border border-border-light rounded-lg shadow-lg py-1 min-w-[160px]">
+              <div className="absolute right-0 top-full mt-1 z-50 bg-white border border-border-light rounded-lg shadow-lg py-1 min-w-40">
                 <button
                   onClick={exportToCSV}
                   className="w-full px-4 py-2 text-left text-sm text-text-light-primary hover:bg-background-light flex items-center gap-2"
@@ -750,7 +753,10 @@ export function ProductsPage({
             Total Stock Value: $
             {filteredProducts
               .reduce((sum, p) => sum + p.costPrice * p.stock, 0)
-              .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              .toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
           </span>
         </div>
       )}
@@ -764,7 +770,9 @@ export function ProductsPage({
           onUpdate={(productId, updates) => {
             onUpdate?.(productId, updates);
             // Update local selected product state to reflect changes
-            setSelectedProduct((prev) => prev ? { ...prev, ...updates } : null);
+            setSelectedProduct((prev) =>
+              prev ? { ...prev, ...updates } : null
+            );
           }}
         />
       )}
